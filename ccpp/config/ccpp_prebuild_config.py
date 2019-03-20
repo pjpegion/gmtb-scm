@@ -85,7 +85,8 @@ SCHEME_FILES_DEPENDENCIES = [
     'ccpp/physics/physics/module_soil_pre.F90',
     'ccpp/physics/physics/wv_saturation.F',
     'scm/src/GFS_typedefs.F90',
-    'scm/src/CCPP_typedefs.F90'
+    'scm/src/CCPP_typedefs.F90',
+    'ccpp-physics/physics/rrtmgp_lw_cloud_optics.F90'
 ]
 
 # Add all physics scheme files relative to basedir
@@ -142,6 +143,9 @@ SCHEME_FILES = {
     'ccpp/physics/physics/rayleigh_damp.f'              : ['physics'],
     'ccpp/physics/physics/rrtmg_lw_post.F90'            : ['physics'],
     'ccpp/physics/physics/rrtmg_lw_pre.F90'             : ['physics'],
+    'ccpp/physics/physics/rrtmgp_lw_post.F90'           : ['physics'],
+    'ccpp/physics/physics/rrtmgp_lw_main.F90'           : ['physics'],
+    'ccpp/physics/physics/rrtmgp_lw_pre.F90'            : ['physics'],
     'ccpp/physics/physics/rrtmg_sw_post.F90'            : ['physics'],
     'ccpp/physics/physics/rrtmg_sw_pre.F90'             : ['physics'],
     'ccpp/physics/physics/sfc_diag.f'                   : ['physics'],
@@ -153,6 +157,28 @@ SCHEME_FILES = {
     'ccpp/physics/physics/sfc_ocean.F'                  : ['physics'],
     'ccpp/physics/physics/sfc_sice.f'                   : ['physics'],
     'ccpp/physics/physics/gmtb_scm_sfc_flux_spec.F90'   : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rrtmgp/mo_gas_concentrations.F90'            : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rrtmgp/mo_gas_optics.F90'                    : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rrtmgp/mo_gas_optics_rrtmgp.F90'             : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rrtmgp/mo_rrtmgp_constants.F90'              : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rrtmgp/mo_util_reorder.F90'                  : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rrtmgp/mo_util_string.F90'                   : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rrtmgp/kernels/mo_gas_optics_kernels.F90'    : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rrtmgp/kernels/mo_reorder_kernels.F90'       : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rte/mo_fluxes.F90'                           : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rte/mo_optical_props.F90'                    : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rte/mo_rte_kind.F90'                         : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rte/mo_rte_lw.F90'                           : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rte/mo_rte_sw.F90'                           : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rte/mo_source_functions.F90'                 : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rte/kernels/mo_fluxes_broadband_kernels.F90' : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rte/kernels/mo_optical_props_kernels.F90'    : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/rte/kernels/mo_rte_solver_kernels.F90'       : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/extensions/mo_fluxes_byband.F90'             : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/extensions/mo_fluxes_byband_kernels.F90'     : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/extensions/mo_fluxes_bygpoint.F90'           : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/extensions/mo_heating_rates.F90'             : ['physics'],
+    'ccpp-physics/physics/rte-rrtmgp/extensions/cloud_optics/mo_cloud_optics.F90' : ['physics'],
     }
 
 # Auto-generated makefile/cmakefile snippets that contain all schemes
@@ -194,6 +220,19 @@ OPTIONAL_ARGUMENTS = {
          },
      'rrtmg_lw' : {
          'rrtmg_lw_run' : [
+             'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
+             'cloud_liquid_water_path',
+             'mean_effective_radius_for_liquid_cloud',
+             'cloud_ice_water_path',
+             'mean_effective_radius_for_ice_cloud',
+             'cloud_rain_water_path',
+             'mean_effective_radius_for_rain_drop',
+             'cloud_snow_water_path',
+             'mean_effective_radius_for_snow_flake',
+             ],
+        },
+    'rrtmgp_lw' : {
+         'rrtmgp_lw_run' : [
              'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
              'cloud_liquid_water_path',
              'mean_effective_radius_for_liquid_cloud',
