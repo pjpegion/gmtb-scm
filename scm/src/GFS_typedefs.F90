@@ -522,6 +522,13 @@ module GFS_typedefs
     logical              :: norad_precip    !< radiation precip flag for Ferrier/Moorthi
     logical              :: lwhtr           !< flag to output lw heating rate (Radtend%lwhc)
     logical              :: swhtr           !< flag to output sw heating rate (Radtend%swhc)
+    character(len=128)   :: rrtmgp_root     !< Directory of rte+rrtmgp source code
+    character(len=128)   :: kdist_file_gas  !< RRTMGP K-distribution file for gaseous atmosphere
+    character(len=128)   :: kdist_file_clouds !< RRTMGP K-distribution file for clouds
+    integer              :: rrtmgp_lw_cld_phys !< Flag to control how RRTGMP handles cloudy scenes.
+                                               !< = 0 ; Use RRTMGP implementation
+                                               !< = 1 ; Use RRTMGP (pade)
+                                               !< = 2 ; USE RRTMGP (LUT)
 
     !--- microphysical switch
     integer              :: ncld            !< choice of cloud scheme
@@ -2034,7 +2041,13 @@ module GFS_typedefs
     logical              :: norad_precip   = .false.         !< radiation precip flag for Ferrier/Moorthi
     logical              :: lwhtr          = .true.          !< flag to output lw heating rate (Radtend%lwhc)
     logical              :: swhtr          = .true.          !< flag to output sw heating rate (Radtend%swhc)
-
+    character(len=128)   :: rrtmgp_root        = ''          !< Directory of rte+rrtmgp source code
+    character(len=128)   :: kdist_file_gas     = ''          !< RRTMGP K-distribution file for gaseous atmosphere
+    character(len=128)   :: kdist_file_clouds  = ''          !< RRTMGP K-distribution file for clouds
+    integer              :: rrtmgp_lw_cld_phys = 0           !< Flag to control how RRTGMP handles cloudy scenes.
+                                                             !< = 0 ; Use RRTMGP implementation
+                                                             !< = 1 ; Use RRTMGP (pade)
+                                                             !< = 2 ; USE RRTMGP (LUT)
     !--- Z-C microphysical parameters
     integer              :: ncld           =  1                 !< choice of cloud scheme
     integer              :: imp_physics    =  99                !< choice of cloud scheme
@@ -2268,6 +2281,8 @@ module GFS_typedefs
                                fhswr, fhlwr, levr, nfxr, aero_in, iflip, isol, ico2, ialb,  &
                                isot, iems, iaer, icliq_sw, iovr_sw, iovr_lw, ictm, isubc_sw,&
                                isubc_lw, crick_proof, ccnorm, lwhtr, swhtr,                 &
+                               rrtmgp_root, kdist_file_gas, kdist_file_clouds,              &
+                               rrtmgp_lw_cld_phys,                                          &
                           ! IN CCN forcing
                                iccn,                                                        &
                           !--- microphysical parameterizations
@@ -2444,6 +2459,10 @@ module GFS_typedefs
     Model%ccnorm           = ccnorm
     Model%lwhtr            = lwhtr
     Model%swhtr            = swhtr
+    Model%rrtmgp_root        = rrtmgp_root
+    Model%kdist_file_gas     = kdist_file_gas
+    Model%kdist_file_clouds  = kdist_file_clouds
+    Model%rrtmgp_lw_cld_phys = rrtmgp_lw_cld_phys
     ! The CCPP versions of the RRTMG lw/sw schemes are configured
     ! such that lw and sw heating rate are output, i.e. they rely
     ! on the corresponding arrays to be allocated.
@@ -3084,33 +3103,37 @@ module GFS_typedefs
       print *, ' idate             : ', Model%idate
       print *, ' '
       print *, 'radiation control parameters'
-      print *, ' fhswr             : ', Model%fhswr
-      print *, ' fhlwr             : ', Model%fhlwr
-      print *, ' nsswr             : ', Model%nsswr
-      print *, ' nslwr             : ', Model%nslwr
-      print *, ' levr              : ', Model%levr
-      print *, ' nfxr              : ', Model%nfxr
-      print *, ' aero_in           : ', Model%aero_in
-      print *, ' lmfshal           : ', Model%lmfshal
-      print *, ' lmfdeep2          : ', Model%lmfdeep2
-      print *, ' nrcm              : ', Model%nrcm
-      print *, ' iflip             : ', Model%iflip
-      print *, ' isol              : ', Model%isol
-      print *, ' ico2              : ', Model%ico2
-      print *, ' ialb              : ', Model%ialb
-      print *, ' iems              : ', Model%iems
-      print *, ' iaer              : ', Model%iaer
-      print *, ' icliq_sw          : ', Model%icliq_sw
-      print *, ' iovr_sw           : ', Model%iovr_sw
-      print *, ' iovr_lw           : ', Model%iovr_lw
-      print *, ' ictm              : ', Model%ictm
-      print *, ' isubc_sw          : ', Model%isubc_sw
-      print *, ' isubc_lw          : ', Model%isubc_lw
-      print *, ' crick_proof       : ', Model%crick_proof
-      print *, ' ccnorm            : ', Model%ccnorm
-      print *, ' norad_precip      : ', Model%norad_precip
-      print *, ' lwhtr             : ', Model%lwhtr
-      print *, ' swhtr             : ', Model%swhtr
+      print *, ' fhswr              : ', Model%fhswr
+      print *, ' fhlwr              : ', Model%fhlwr
+      print *, ' nsswr              : ', Model%nsswr
+      print *, ' nslwr              : ', Model%nslwr
+      print *, ' levr               : ', Model%levr
+      print *, ' nfxr               : ', Model%nfxr
+      print *, ' aero_in            : ', Model%aero_in
+      print *, ' lmfshal            : ', Model%lmfshal
+      print *, ' lmfdeep2           : ', Model%lmfdeep2
+      print *, ' nrcm               : ', Model%nrcm
+      print *, ' iflip              : ', Model%iflip
+      print *, ' isol               : ', Model%isol
+      print *, ' ico2               : ', Model%ico2
+      print *, ' ialb               : ', Model%ialb
+      print *, ' iems               : ', Model%iems
+      print *, ' iaer               : ', Model%iaer
+      print *, ' icliq_sw           : ', Model%icliq_sw
+      print *, ' iovr_sw            : ', Model%iovr_sw
+      print *, ' iovr_lw            : ', Model%iovr_lw
+      print *, ' ictm               : ', Model%ictm
+      print *, ' isubc_sw           : ', Model%isubc_sw
+      print *, ' isubc_lw           : ', Model%isubc_lw
+      print *, ' crick_proof        : ', Model%crick_proof
+      print *, ' ccnorm             : ', Model%ccnorm
+      print *, ' norad_precip       : ', Model%norad_precip
+      print *, ' lwhtr              : ', Model%lwhtr
+      print *, ' swhtr              : ', Model%swhtr
+      print *, ' rrtmgp_root        : ', Model%rrtmgp_root
+      print *, ' kdist_file_gas     : ', Model%kdist_file_gas
+      print *, ' kdist_file_clouds  : ', Model%kdist_file_clouds
+      print *, ' rrtmgp_lw_cld_phys : ', Model%rrtmgp_lw_cld_phys
       print *, ' '
       print *, 'microphysical switch'
       print *, ' ncld              : ', Model%ncld
