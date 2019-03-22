@@ -52,6 +52,8 @@ print time_of_first_cloud
 fig = figure(0, figsize=(14,10), dpi=80, facecolor='w', edgecolor='k')
 for itime in range(0,3):
     cldlay = np.where(cldcov_REF[time_of_first_cloud-1+itime,:,0] > 0)
+    for ip in range(0,len(mean_pres)):
+        print pres[time_of_first_cloud-1+itime,ip],cldcov[time_of_first_cloud-1+itime,ip,0]
 
     # Profiles
     plt.subplot(230+(itime+1))    
