@@ -3,9 +3,14 @@
 import os,netCDF4,numpy as np
 import matplotlib.pyplot as plt
 from pylab import figure
+clouds=0
 
-fileREF   = '/home/dswales/Projects/CCPPdev/gmtb-scm/scm/bin/output_twpice_control/output.nc'
-file2Comp = '/home/dswales/Projects/CCPPdev/gmtb-scm/scm/bin/output_twpice_control_RRTMGP/output.nc'
+if clouds == 1:
+    fileREF   = '/home/dswales/Projects/CCPPdev/gmtb-scm/scm/bin/output_twpice_control/output_cloud.nc'
+    file2Comp = '/home/dswales/Projects/CCPPdev/gmtb-scm/scm/bin/output_twpice_control_RRTMGP/output_cloud.nc'
+if clouds == 0:
+    fileREF   = '/home/dswales/Projects/CCPPdev/gmtb-scm/scm/bin/output_twpice_control/output.nc'
+    file2Comp = '/home/dswales/Projects/CCPPdev/gmtb-scm/scm/bin/output_twpice_control_RRTMGP/output.nc'
 
 # Read in data
 # Reference
@@ -47,42 +52,53 @@ for itime in range(0,ntime):
         #print cldcov_REF[itime,:,0],cldcov[itime,:,0]
         break
 print time_of_first_cloud
+# First time step in file either has cloud or not, so use that timestep
+time_of_first_cloud=1
 
 # Make plots
 fig = figure(0, figsize=(14,10), dpi=80, facecolor='w', edgecolor='k')
-for itime in range(0,3):
-    cldlay = np.where(cldcov_REF[time_of_first_cloud-1+itime,:,0] > 0)
-    for ip in range(0,len(mean_pres)):
-        print pres[time_of_first_cloud-1+itime,ip],cldcov[time_of_first_cloud-1+itime,ip,0]
+#for itime in range(0,3):
 
-    # Profiles
-    plt.subplot(230+(itime+1))    
-    plt.plot(lw_rad_heating_rate_REF[time_of_first_cloud-1+itime,:,0],pres[time_of_first_cloud-1+itime,:]/100.,'-r')
-    plt.plot(lw_rad_heating_rate[time_of_first_cloud-1+itime,:,0],    pres[time_of_first_cloud-1+itime,:]/100.,'-b')
-    plt.scatter(lw_rad_heating_rate[time_of_first_cloud-1+itime,cldlay,0],    pres[time_of_first_cloud-1+itime,cldlay]/100., marker='o',)
-    plt.axis([-1e-4,1e-4,1000,0])
-    plt.ylabel('Pressure (hPa)')
-    plt.xlabel('(K/s)')
-    plt.title('LW heating rate')
-    # Differences
-    plt.subplot(233+(itime+1))    
-    plt.plot(lw_rad_heating_rate_REF[time_of_first_cloud-1+itime,:,0] - lw_rad_heating_rate[time_of_first_cloud-1+itime,:,0],
-             pres[time_of_first_cloud-1+itime,:]/100.,'-r')
-    plt.axis([-1e-4,1e-4,1000,0])
-    plt.ylabel('Pressure (hPa)')
-    plt.xlabel('(K/s)')
-    plt.title(' ')
+cldlay = np.where(cldcov_REF[time_of_first_cloud-1,:,0] > 0)
+for ip in range(0,len(mean_pres)):
+    print pres[time_of_first_cloud-1,ip],cldcov[time_of_first_cloud-1,ip,0],sw_rad_heating_rate_REF[time_of_first_cloud,ip,0],sw_rad_heating_rate[time_of_first_cloud,ip,0]
 
-#plt.subplot(232)
-#plt.plot(mean_lw_rad_heating_rate_REF-mean_lw_rad_heating_rate,mean_pres/100.,'-r')
-#plt.axis([-1e-4,1e-4,1000,0])
-#plt.xlabel('(K/s)')
-#plt.title('Absolute Difference')
-#plt.subplot(233)
-#plt.plot(100.*(1-mean_lw_rad_heating_rate_REF/mean_lw_rad_heating_rate),mean_pres/100.,'-r')
-#plt.axis([-20,20,1000,0])
-#plt.xlabel('(%)')
-#plt.title('Relative Difference')
+# Plot heating-rate profiles
+# 1) LW
+plt.subplot(221)    
+plt.plot(lw_rad_heating_rate_REF[time_of_first_cloud,:,0],pres[time_of_first_cloud,:]/100.,'-r')
+plt.plot(lw_rad_heating_rate[time_of_first_cloud,:,0],    pres[time_of_first_cloud,:]/100.,'-b')
+plt.scatter(lw_rad_heating_rate[time_of_first_cloud,cldlay,0],    pres[time_of_first_cloud,cldlay]/100., marker='o',)
+plt.axis([-1e-4,1e-4,1000,0])
+plt.ylabel('Pressure (hPa)')
+plt.xlabel('(K/s)')
+plt.title('LW heating rate')
+# 2) SW
+plt.subplot(222)    
+plt.plot(sw_rad_heating_rate_REF[time_of_first_cloud,:,0],pres[time_of_first_cloud,:]/100.,'-r')
+plt.plot(sw_rad_heating_rate[time_of_first_cloud,:,0],    pres[time_of_first_cloud,:]/100.,'-b')
+plt.scatter(sw_rad_heating_rate[time_of_first_cloud,cldlay,0],    pres[time_of_first_cloud,cldlay]/100., marker='o',)
+plt.axis([-1e-4,1e-4,1000,0])
+plt.ylabel('Pressure (hPa)')
+plt.xlabel('(K/s)')
+plt.title('SW heating rate')
+# 3) LW Difference
+plt.subplot(223)    
+plt.plot(lw_rad_heating_rate_REF[time_of_first_cloud,:,0] - lw_rad_heating_rate[time_of_first_cloud,:,0],
+         pres[time_of_first_cloud,:]/100.,'-r')
+plt.axis([-1e-4,1e-4,1000,0])
+plt.ylabel('Pressure (hPa)')
+plt.xlabel('(K/s)')
+plt.title(' ')
+# 4) SW Difference
+plt.subplot(224)    
+plt.plot(sw_rad_heating_rate_REF[time_of_first_cloud,:,0] - sw_rad_heating_rate[time_of_first_cloud,:,0],
+         pres[time_of_first_cloud,:]/100.,'-r')
+plt.axis([-1e-4,1e-4,1000,0])
+plt.ylabel('Pressure (hPa)')
+plt.xlabel('(K/s)')
+plt.title(' ')
+
 plt.show()
 ##########################################################################################
 # END PROGRAM

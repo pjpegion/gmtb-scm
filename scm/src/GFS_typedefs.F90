@@ -523,8 +523,9 @@ module GFS_typedefs
     logical              :: lwhtr           !< flag to output lw heating rate (Radtend%lwhc)
     logical              :: swhtr           !< flag to output sw heating rate (Radtend%swhc)
     character(len=128)   :: rrtmgp_root     !< Directory of rte+rrtmgp source code
-    character(len=128)   :: kdist_file_gas  !< RRTMGP K-distribution file for gaseous atmosphere
-    character(len=128)   :: kdist_file_clouds !< RRTMGP K-distribution file for clouds
+    character(len=128)   :: kdist_lw_file_gas  !< RRTMGP K-distribution (LW) file for gaseous atmosphere
+    character(len=128)   :: kdist_lw_file_clouds !< RRTMGP K-distribution file for clouds
+    character(len=128)   :: kdist_sw_file_gas  !< RRTMGP K-distribution (SW) file for gaseous atmosphere
     integer              :: rrtmgp_lw_cld_phys !< Flag to control how RRTGMP handles cloudy scenes.
                                                !< = 0 ; Use RRTMGP implementation
                                                !< = 1 ; Use RRTMGP (pade)
@@ -2042,8 +2043,9 @@ module GFS_typedefs
     logical              :: lwhtr          = .true.          !< flag to output lw heating rate (Radtend%lwhc)
     logical              :: swhtr          = .true.          !< flag to output sw heating rate (Radtend%swhc)
     character(len=128)   :: rrtmgp_root        = ''          !< Directory of rte+rrtmgp source code
-    character(len=128)   :: kdist_file_gas     = ''          !< RRTMGP K-distribution file for gaseous atmosphere
-    character(len=128)   :: kdist_file_clouds  = ''          !< RRTMGP K-distribution file for clouds
+    character(len=128)   :: kdist_lw_file_gas     = ''       !< RRTMGP K-distribution (LW) file for gaseous atmosphere
+    character(len=128)   :: kdist_sw_file_gas     = ''       !< RRTMGP K-distribution (SW) file for gaseous atmosphere
+    character(len=128)   :: kdist_lw_file_clouds  = ''       !< RRTMGP K-distribution (LW) file for clouds
     integer              :: rrtmgp_lw_cld_phys = 0           !< Flag to control how RRTGMP handles cloudy scenes.
                                                              !< = 0 ; Use RRTMGP implementation
                                                              !< = 1 ; Use RRTMGP (pade)
@@ -2281,8 +2283,8 @@ module GFS_typedefs
                                fhswr, fhlwr, levr, nfxr, aero_in, iflip, isol, ico2, ialb,  &
                                isot, iems, iaer, icliq_sw, iovr_sw, iovr_lw, ictm, isubc_sw,&
                                isubc_lw, crick_proof, ccnorm, lwhtr, swhtr,                 &
-                               rrtmgp_root, kdist_file_gas, kdist_file_clouds,              &
-                               rrtmgp_lw_cld_phys,                                          &
+                               rrtmgp_root, kdist_lw_file_gas, kdist_lw_file_clouds,        &
+                               kdist_sw_file_gas, rrtmgp_lw_cld_phys,                       &
                           ! IN CCN forcing
                                iccn,                                                        &
                           !--- microphysical parameterizations
@@ -2460,8 +2462,9 @@ module GFS_typedefs
     Model%lwhtr            = lwhtr
     Model%swhtr            = swhtr
     Model%rrtmgp_root        = rrtmgp_root
-    Model%kdist_file_gas     = kdist_file_gas
-    Model%kdist_file_clouds  = kdist_file_clouds
+    Model%kdist_lw_file_gas     = kdist_lw_file_gas
+    Model%kdist_sw_file_gas     = kdist_sw_file_gas
+    Model%kdist_lw_file_clouds  = kdist_lw_file_clouds
     Model%rrtmgp_lw_cld_phys = rrtmgp_lw_cld_phys
     ! The CCPP versions of the RRTMG lw/sw schemes are configured
     ! such that lw and sw heating rate are output, i.e. they rely
@@ -3131,9 +3134,10 @@ module GFS_typedefs
       print *, ' lwhtr              : ', Model%lwhtr
       print *, ' swhtr              : ', Model%swhtr
       print *, ' rrtmgp_root        : ', Model%rrtmgp_root
-      print *, ' kdist_file_gas     : ', Model%kdist_file_gas
-      print *, ' kdist_file_clouds  : ', Model%kdist_file_clouds
-      print *, ' rrtmgp_lw_cld_phys : ', Model%rrtmgp_lw_cld_phys
+      print *, ' kdist_lw_file_gas     : ', Model%kdist_lw_file_gas
+      print *, ' kdist_sw_file_gas     : ', Model%kdist_sw_file_gas
+      print *, ' kdist_lw_file_clouds  : ', Model%kdist_lw_file_clouds
+      print *, ' rrtmgp_lw_cld_phys    : ', Model%rrtmgp_lw_cld_phys
       print *, ' '
       print *, 'microphysical switch'
       print *, ' ncld              : ', Model%ncld
