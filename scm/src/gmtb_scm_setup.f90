@@ -45,7 +45,12 @@ subroutine set_state(scm_input, scm_reference, scm_state)
   do i=1, scm_state%n_cols
     call interpolate_to_grid_centers(scm_input%input_nlev, scm_input%input_pres, input_qv, scm_state%pres_l(i,1,:), &
       scm_state%n_levels, scm_state%state_tracer(i,1,:,scm_state%water_vapor_index,1), last_index_init, 1)
-    !>  - If the input domain does not span the model domain, patch in McClatchey tropical standard atmosphere (smoothly over a number of levels) above.
+    ! DJS2019: Do this for cloud ice and liquid
+    call interpolate_to_grid_centers(scm_input%input_nlev, scm_input%input_pres, scm_input%input_ql, scm_state%pres_l(i,1,:), &
+         scm_state%n_levels, scm_state%state_tracer(i,1,:,scm_state%cloud_water_index,1), last_index_init, 1)
+    call interpolate_to_grid_centers(scm_input%input_nlev, scm_input%input_pres, scm_input%input_qi, scm_state%pres_l(i,1,:), &
+         scm_state%n_levels, scm_state%state_tracer(i,1,:,scm_state%cloud_ice_index,1), last_index_init, 1)
+   !>  - If the input domain does not span the model domain, patch in McClatchey tropical standard atmosphere (smoothly over a number of levels) above.
     if(last_index_init < scm_state%n_levels) THEN
       call patch_in_ref(last_index_init, scm_state%n_levels_smooth, scm_reference%ref_nlev, scm_reference%ref_pres, &
         scm_reference%ref_qv, scm_state%pres_l(i,1,:), scm_state%n_levels, &
