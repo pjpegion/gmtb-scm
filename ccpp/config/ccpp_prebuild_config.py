@@ -87,6 +87,7 @@ SCHEME_FILES_DEPENDENCIES = [
     'scm/src/GFS_typedefs.F90',
     'scm/src/CCPP_typedefs.F90',
     'ccpp/physics/physics/rrtmgp_lw_cloud_optics.F90',
+    'ccpp/physics/physics/rrtmgp_sw_cloud_optics.F90',
 ]
 
 # Add all physics scheme files relative to basedir
