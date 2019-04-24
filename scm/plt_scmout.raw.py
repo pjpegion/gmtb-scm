@@ -2,8 +2,9 @@
 ##########################################################################################
 import os,netCDF4,numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 from pylab import figure
-clouds=0
+clouds=01
 
 if clouds == 1:
     fileREF   = '/home/dswales/Projects/CCPPdev/gmtb-scm/scm/bin/output_twpice_control/output_cloud.nc'
@@ -13,7 +14,7 @@ if clouds == 0:
     file2Comp = '/home/dswales/Projects/CCPPdev/gmtb-scm/scm/bin/output_twpice_control_RRTMGP/output.nc'
 
 # Read in data
-# Reference
+# RRTMG
 dataREF                 = netCDF4.Dataset(fileREF,'r')
 time                    = dataREF.variables['time'][:]
 pres                    = dataREF.variables['pres'][:,:,:]
@@ -25,7 +26,7 @@ lw_rad_heating_rate_REF = dataREF.variables['lw_rad_heating_rate'][:,:,:]
 sw_rad_heating_rate_REF = dataREF.variables['sw_rad_heating_rate'][:,:,:]
 dT_dt_lwrad_REF         = dataREF.variables['dT_dt_lwrad'][:,:,:]
 dT_dt_swrad_REF         = dataREF.variables['dT_dt_swrad'][:,:,:]
-#
+# RRTMGP
 dataNEW             = netCDF4.Dataset(file2Comp,'r')
 lw_rad_heating_rate = dataNEW.variables['lw_rad_heating_rate'][:,:,:]
 sw_rad_heating_rate = dataNEW.variables['sw_rad_heating_rate'][:,:,:]
@@ -33,43 +34,37 @@ dT_dt_lwrad         = dataNEW.variables['dT_dt_lwrad'][:,:,:]
 dT_dt_swrad         = dataNEW.variables['dT_dt_swrad'][:,:,:]
 cldcov              = dataNEW.variables['cldcov'][:,:,:]
 ntime = len(time)
-
-# Compute temporal mean of all profiles
-mean_pres                    = np.sum(pres[:,:],axis=0)/ntime
-mean_lw_rad_heating_rate_REF = np.sum(lw_rad_heating_rate_REF[:,:],axis=0)/ntime
-mean_sw_rad_heating_rate_REF = np.sum(sw_rad_heating_rate_REF[:,:],axis=0)/ntime
-mean_dT_dt_lwrad_REF         = np.sum(dT_dt_lwrad_REF[:,:],        axis=0)/ntime
-mean_dT_dt_swrad_REF         = np.sum(dT_dt_swrad_REF[:,:],        axis=0)/ntime
-mean_lw_rad_heating_rate     = np.sum(lw_rad_heating_rate[:,:],    axis=0)/ntime
-mean_sw_rad_heating_rate     = np.sum(sw_rad_heating_rate[:,:],    axis=0)/ntime
-mean_dT_dt_lwrad             = np.sum(dT_dt_lwrad[:,:],            axis=0)/ntime
-mean_dT_dt_swrad             = np.sum(dT_dt_swrad[:,:],            axis=0)/ntime
+nlay = len(pres[0,:])
 
 # Loop over all time until we find a column with a cloud.
-for itime in range(0,ntime):
-    if (sum(cldcov_REF[itime,:,0] > 0)):
-        time_of_first_cloud = itime
-        #print cldcov_REF[itime,:,0],cldcov[itime,:,0]
-        break
-print time_of_first_cloud
-# First time step in file either has cloud or not, so use that timestep
+#for itime in range(0,ntime):
+#    if (sum(cldcov_REF[itime,:,0] > 0)):
+#        time_of_first_cloud = itime
+#        break
+# First time step in file either has cloud or not, so use that timestep regardless.
 time_of_first_cloud=1
 
-# Make plots
-fig = figure(0, figsize=(14,10), dpi=80, facecolor='w', edgecolor='k')
-#for itime in range(0,3):
+# Which layers contain a cloud?
+cldlay = np.where(cldcov_REF[time_of_first_cloud,:,0] > 0)
 
-cldlay = np.where(cldcov_REF[time_of_first_cloud-1,:,0] > 0)
-for ip in range(0,len(mean_pres)):
-    print pres[time_of_first_cloud-1,ip],cldcov[time_of_first_cloud-1,ip,0],sw_rad_heating_rate_REF[time_of_first_cloud,ip,0],sw_rad_heating_rate[time_of_first_cloud,ip,0]
+for ilev in range(0,nlay):
+    print pres[0,ilev],sw_rad_heating_rate_REF[time_of_first_cloud,ilev,0],sw_rad_heating_rate[time_of_first_cloud,ilev,0]
+
+############################################################################
+# Make plots
+fig = plt.figure(0, figsize=(10,14), dpi=80, facecolor='w', edgecolor='k')
 
 # Plot heating-rate profiles
 # 1) LW
 plt.subplot(221)    
 plt.plot(lw_rad_heating_rate_REF[time_of_first_cloud,:,0],pres[time_of_first_cloud,:]/100.,'-r')
 plt.plot(lw_rad_heating_rate[time_of_first_cloud,:,0],    pres[time_of_first_cloud,:]/100.,'-b')
-plt.scatter(lw_rad_heating_rate[time_of_first_cloud,cldlay,0],    pres[time_of_first_cloud,cldlay]/100., marker='o',)
+plt.scatter(lw_rad_heating_rate_REF[time_of_first_cloud,cldlay,0],    pres[time_of_first_cloud,cldlay]/100., marker='x',color='r')
 plt.axis([-1e-4,1e-4,1000,0])
+ax = plt.gca()
+ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.1e'))
+plt.xticks(rotation=45)
+plt.legend(('RRTMG', 'RRTMGP','Cloudy-layers'),loc='upper right')
 plt.ylabel('Pressure (hPa)')
 plt.xlabel('(K/s)')
 plt.title('LW heating rate')
@@ -77,25 +72,40 @@ plt.title('LW heating rate')
 plt.subplot(222)    
 plt.plot(sw_rad_heating_rate_REF[time_of_first_cloud,:,0],pres[time_of_first_cloud,:]/100.,'-r')
 plt.plot(sw_rad_heating_rate[time_of_first_cloud,:,0],    pres[time_of_first_cloud,:]/100.,'-b')
-plt.scatter(sw_rad_heating_rate[time_of_first_cloud,cldlay,0],    pres[time_of_first_cloud,cldlay]/100., marker='o',)
+plt.scatter(sw_rad_heating_rate_REF[time_of_first_cloud,cldlay,0],    pres[time_of_first_cloud,cldlay]/100., marker='x',color='r')
 plt.axis([-1e-4,1e-4,1000,0])
+ax = plt.gca()
+ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.1e'))
+plt.xticks(rotation=45)
 plt.ylabel('Pressure (hPa)')
 plt.xlabel('(K/s)')
 plt.title('SW heating rate')
 # 3) LW Difference
 plt.subplot(223)    
 plt.plot(lw_rad_heating_rate_REF[time_of_first_cloud,:,0] - lw_rad_heating_rate[time_of_first_cloud,:,0],
-         pres[time_of_first_cloud,:]/100.,'-r')
+         pres[time_of_first_cloud,:]/100.,'-k')
+plt.plot(np.zeros(len(pres[0,:])),pres[time_of_first_cloud,:]/100.,color='lightgray',linestyle='dashed')
+plt.scatter(lw_rad_heating_rate_REF[time_of_first_cloud,cldlay,0] - lw_rad_heating_rate[time_of_first_cloud,cldlay,0],
+         pres[time_of_first_cloud,cldlay]/100.,marker='x',color='red')
 plt.axis([-1e-4,1e-4,1000,0])
+ax = plt.gca()
+ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.1e'))
+plt.xticks(rotation=45)
 plt.ylabel('Pressure (hPa)')
 plt.xlabel('(K/s)')
 plt.title(' ')
 # 4) SW Difference
 plt.subplot(224)    
 plt.plot(sw_rad_heating_rate_REF[time_of_first_cloud,:,0] - sw_rad_heating_rate[time_of_first_cloud,:,0],
-         pres[time_of_first_cloud,:]/100.,'-r')
+         pres[time_of_first_cloud,:]/100.,'-k')
+plt.plot(np.zeros(len(pres[0,:])),pres[time_of_first_cloud,:]/100.,color='lightgray',linestyle='dashed')
+plt.scatter(sw_rad_heating_rate_REF[time_of_first_cloud,cldlay,0] - sw_rad_heating_rate[time_of_first_cloud,cldlay,0],
+         pres[time_of_first_cloud,cldlay]/100.,marker='x',color='red')
 plt.axis([-1e-4,1e-4,1000,0])
+ax = plt.gca()
+ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.1e'))
 plt.ylabel('Pressure (hPa)')
+plt.xticks(rotation=45)
 plt.xlabel('(K/s)')
 plt.title(' ')
 
