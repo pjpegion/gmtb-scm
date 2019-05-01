@@ -186,6 +186,7 @@ SCHEME_FILES = {
     'ccpp/physics/physics/rte-rrtmgp/extensions/mo_fluxes_bygpoint.F90'           : ['physics'],
     'ccpp/physics/physics/rte-rrtmgp/extensions/mo_heating_rates.F90'             : ['physics'],
     'ccpp/physics/physics/rte-rrtmgp/extensions/cloud_optics/mo_cloud_optics.F90' : ['physics'],
+    'ccpp/physics/physics/rte-rrtmgp/extensions/cloud_optics/mo_cloud_sampling.F90' : ['physics'],
     }
 
 # Auto-generated makefile/cmakefile snippets that contain all schemes
@@ -223,6 +224,8 @@ OPTIONAL_ARGUMENTS = {
              'mean_effective_radius_for_rain_drop',
              'cloud_snow_water_path',
              'mean_effective_radius_for_snow_flake',
+             'sw_fluxes_sfc',
+             'sw_fluxes_toa',
              ],
          },
      'rrtmg_lw' : {
@@ -236,6 +239,8 @@ OPTIONAL_ARGUMENTS = {
              'mean_effective_radius_for_rain_drop',
              'cloud_snow_water_path',
              'mean_effective_radius_for_snow_flake',
+             'lw_fluxes_sfc',
+             'lw_fluxes_toa',
              ],
         },
     'rrtmgp_sw' : {
@@ -250,6 +255,8 @@ OPTIONAL_ARGUMENTS = {
              'mean_effective_radius_for_rain_drop',
              'cloud_snow_water_path',
              'mean_effective_radius_for_snow_flake',
+             'sw_fluxes_sfc',
+             'sw_fluxes_toa',
              ],
          },
     'rrtmgp_lw' : {
@@ -263,6 +270,8 @@ OPTIONAL_ARGUMENTS = {
              'mean_effective_radius_for_rain_drop',
              'cloud_snow_water_path',
              'mean_effective_radius_for_snow_flake',
+             'lw_fluxes_sfc',
+             'lw_fluxes_toa',
              ],
         },
     'mp_thompson_hrrr' : {
