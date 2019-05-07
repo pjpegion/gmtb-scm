@@ -8,8 +8,8 @@
        ncld           = 1
        imp_physics    = 10
        pdfcld         = .false.
-       fhswr          = 900.
-       fhlwr          = 900.
+       fhswr          = 3600.
+       fhlwr          = 3600.
        ialb           = 1
        iems           = 1
        IAER           = 111
@@ -51,5 +51,6 @@
        kdist_lw_file_gas = 'rrtmgp/data/rrtmgp-data-lw-g256-2018-12-04.nc'
        kdist_lw_file_clouds  = 'extensions/cloud_optics/rrtmgp-cloud-optics-coeffs-lw.nc'
        kdist_sw_file_gas = 'rrtmgp/data/rrtmgp-data-sw-g224-2018-12-04.nc'
-       rrtmgp_lw_cld_phys = 0
+       kdist_sw_file_clouds  = 'extensions/cloud_optics/rrtmgp-cloud-optics-coeffs-sw.nc'
+       rrtmgp_cld_phys = 1
 /

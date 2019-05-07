@@ -106,7 +106,13 @@ SCHEME_FILES = {
     'ccpp/physics/physics/GFS_rrtmg_setup.F90'          : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_post.F90'          : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_pre.F90'           : ['physics'],
+    'ccpp/physics/physics/GFS_rrtmgp_lw.F90'            : ['physics'],
+    'ccpp/physics/physics/GFS_rrtmgp_sw.F90'            : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_setup.F90'         : ['physics'],
+    'ccpp/physics/physics/GFS_rrtmgp_lw_post.F90'       : ['physics'],
+    'ccpp/physics/physics/GFS_rrtmgp_lw_pre.F90'        : ['physics'],
+    'ccpp/physics/physics/GFS_rrtmgp_sw_post.F90'       : ['physics'],
+    'ccpp/physics/physics/GFS_rrtmgp_sw_pre.F90'        : ['physics'],
     'ccpp/physics/physics/GFS_suite_interstitial.F90'   : ['physics'],
     'ccpp/physics/physics/GFS_surface_generic.F90'      : ['physics'],
     'ccpp/physics/physics/GFS_surface_loop_control.F90' : ['physics'],
@@ -147,12 +153,6 @@ SCHEME_FILES = {
     'ccpp/physics/physics/rayleigh_damp.f'              : ['physics'],
     'ccpp/physics/physics/rrtmg_lw_post.F90'            : ['physics'],
     'ccpp/physics/physics/rrtmg_lw_pre.F90'             : ['physics'],
-    'ccpp/physics/physics/rrtmgp_lw_post.F90'           : ['physics'],
-    'ccpp/physics/physics/rrtmgp_lw_main.F90'           : ['physics'],
-    'ccpp/physics/physics/rrtmgp_lw_pre.F90'            : ['physics'],
-    'ccpp/physics/physics/rrtmgp_sw_post.F90'           : ['physics'],
-    'ccpp/physics/physics/rrtmgp_sw_main.F90'           : ['physics'],
-    'ccpp/physics/physics/rrtmgp_sw_pre.F90'            : ['physics'],
     'ccpp/physics/physics/rrtmg_sw_post.F90'            : ['physics'],
     'ccpp/physics/physics/rrtmg_sw_pre.F90'             : ['physics'],
     'ccpp/physics/physics/sfc_diag.f'                   : ['physics'],
@@ -243,8 +243,8 @@ OPTIONAL_ARGUMENTS = {
              'lw_fluxes_toa',
              ],
         },
-    'rrtmgp_sw' : {
-         'rrtmgp_sw_run' : [
+    'GFS_rrtmgp_sw' : {
+         'GFS_rrtmgp_sw_run' : [
              'tendency_of_air_temperature_due_to_shortwave_heating_assuming_clear_sky_on_radiation_time_step',
              'components_of_surface_downward_shortwave_fluxes',
              'cloud_liquid_water_path',
@@ -259,8 +259,8 @@ OPTIONAL_ARGUMENTS = {
              'sw_fluxes_toa',
              ],
          },
-    'rrtmgp_lw' : {
-         'rrtmgp_lw_run' : [
+    'GFS_rrtmgp_lw' : {
+         'GFS_rrtmgp_lw_run' : [
              'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
              'cloud_liquid_water_path',
              'mean_effective_radius_for_liquid_cloud',
