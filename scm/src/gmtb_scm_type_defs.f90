@@ -8,7 +8,7 @@ module gmtb_scm_type_defs
     GFS_grid_type, GFS_tbd_type, GFS_cldprop_type, GFS_radtend_type, GFS_diag_type, GFS_interstitial_type, &
     GFS_init_type
   use machine, only: kind_phys
-  use mo_gas_optics_rrtmgp,      only: ty_gas_optics_rrtmgp
+  use mo_gas_optics_rrtmgp,      only: ty_gas_optics_rrtmgp_type
 
   implicit none
 
@@ -1210,7 +1210,7 @@ module gmtb_scm_type_defs
 !! | physics%hydrostatic                                      | flag_for_hydrostatic_solver                                                                       | flag for use the hydrostatic or nonhydrostatic solver                               | flag          |    0 | logical               |           | none   | F        |
 !! | physics%phys_hydrostatic                                 | flag_for_hydrostatic_heating_from_physics                                                         | flag for use of hydrostatic heating in physics                                      | flag          |    0 | logical               |           | none   | F        |
 !! | physics%nthreads                                         | omp_threads                                                                                       | number of OpenMP threads available for physics schemes                              | count         |    0 | integer               |           | none   | F        |
-!! | physics%kdist_lw                                         | K_distribution_file_for_RRTMGP_LW_scheme                                                          | DDT containing spectral information for RRTMGP LW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
+!! | physics%kdist_lw                                         | K_distribution_file_for_RRTMGP_LW_scheme                                                          | DDT containing spectral information for RRTMGP LW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp_type  |           | none   | F        |
 !!
 #endif
   type physics_type
@@ -1253,7 +1253,7 @@ module gmtb_scm_type_defs
 
     ! needed for RRTMGP
     ! LW
-    type(ty_gas_optics_rrtmgp) :: &
+    type(ty_gas_optics_rrtmgp_type) :: &
          kdist_lw
 !    real(kind_phys) 
 
