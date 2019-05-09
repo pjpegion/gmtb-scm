@@ -16,7 +16,9 @@ VARIABLE_DEFINITION_FILES = [
     'scm/src/GFS_typedefs.F90',
     'scm/src/gmtb_scm_type_defs.f90',
     'scm/src/gmtb_scm_physical_constants.f90',
-    'ccpp/physics/physics/rte-rrtmgp/rrtmgp/mo_gas_optics_rrtmgp.F90'
+    'ccpp/physics/physics/rte-rrtmgp/rrtmgp/mo_gas_optics_rrtmgp.F90',
+    'ccpp/physics/physics/rte-rrtmgp/rrtmgp/mo_gas_concentrations.F90',
+    'ccpp/physics/physics/rte-rrtmgp/extensions/cloud_optics/mo_cloud_optics.F90',
     ]
 
 # Add all physics scheme dependencies relative to basedir - note that the CCPP
@@ -207,6 +209,9 @@ CAPS_CMAKEFILE = 'ccpp/physics/CCPP_CAPS.cmake'
 
 # Directory where to put all auto-generated physics caps
 CAPS_DIR = 'ccpp/physics/physics'
+
+# Directory where the suite definition files are stored
+SUITES_DIR = 'ccpp/suites'
 
 # Optional arguments - only required for schemes that use
 # optional arguments. ccpp_prebuild.py will throw an exception
