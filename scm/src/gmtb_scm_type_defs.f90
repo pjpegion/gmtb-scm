@@ -8,9 +8,10 @@ module gmtb_scm_type_defs
     GFS_grid_type, GFS_tbd_type, GFS_cldprop_type, GFS_radtend_type, GFS_diag_type, GFS_interstitial_type, &
     GFS_init_type
   use machine, only: kind_phys
-  use mo_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp_type
-  use mo_cloud_optics,       only: ty_cloud_optics_type
-  use mo_gas_concentrations, only: ty_gas_concs_type
+  use mo_gas_optics_rrtmgp,  only: ty_gas_optics_rrtmgp
+  use mo_optical_props,      only: ty_optical_props_1scl
+  use mo_cloud_optics,       only: ty_cloud_optics
+  !use mo_gas_concentrations, only: ty_gas_concs_type
 
   implicit none
 
@@ -1212,13 +1213,18 @@ module gmtb_scm_type_defs
 !! | physics%hydrostatic                                      | flag_for_hydrostatic_solver                                                                       | flag for use the hydrostatic or nonhydrostatic solver                               | flag          |    0 | logical               |           | none   | F        |
 !! | physics%phys_hydrostatic                                 | flag_for_hydrostatic_heating_from_physics                                                         | flag for use of hydrostatic heating in physics                                      | flag          |    0 | logical               |           | none   | F        |
 !! | physics%nthreads                                         | omp_threads                                                                                       | number of OpenMP threads available for physics schemes                              | count         |    0 | integer               |           | none   | F        |
-!! | physics%kdist_lw                                         | K_distribution_file_for_RRTMGP_LW_scheme                                                          | DDT containing spectral information for RRTMGP LW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp_type  |           | none   | F        |
-!! | physics%kdist_sw                                         | K_distribution_file_for_RRTMGP_SW_scheme                                                          | DDT containing spectral information for RRTMGP SW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp_type  |           | none   | F        |
-!! | physics%kdist_cldy_lw                                    | K_distribution_file_for_cloudy_RRTMGP_LW_scheme                                                   | DDT containing spectral information for cloudy RRTMGP LW radiation scheme           | DDT           |    0 | ty_cloud_optics_type       |           | none   | F        |
-!! | physics%kdist_cldy_sw                                    | K_distribution_file_for_cloudy_RRTMGP_SW_scheme                                                   | DDT containing spectral information for cloudy RRTMGP SW radiation scheme           | DDT           |    0 | ty_cloud_optics_type       |           | none   | F        |
-!! | physics%gas_concentrations                               | Gas_concentrations_for_RRTMGP_suite                                                               | DDT containing gas concentrations for RRTMGP radiation scheme                       | DDT           |    0 | ty_gas_concs_type          |           | none   | F        |
+!! | physics%kdist_lw                                         | K_distribution_file_for_RRTMGP_LW_scheme                                                          | DDT containing spectral information for RRTMGP LW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
+!! | physics%kdist_sw                                         | K_distribution_file_for_RRTMGP_SW_scheme                                                          | DDT containing spectral information for RRTMGP SW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
+!! | physics%kdist_cldy_lw                                    | K_distribution_file_for_cloudy_RRTMGP_LW_scheme                                                   | DDT containing spectral information for cloudy RRTMGP LW radiation scheme           | DDT           |    0 | ty_cloud_optics       |           | none   | F        |
+!! | physics%kdist_cldy_sw                                    | K_distribution_file_for_cloudy_RRTMGP_SW_scheme                                                   | DDT containing spectral information for cloudy RRTMGP SW radiation scheme           | DDT           |    0 | ty_cloud_optics       |           | none   | F        |
+!! | physics%sfc_emiss_byband                                 | surface_longwave_emissivity_in_each_band                                                          | surface lw emissivity in fraction in each LW band                                   | frac          |    2 | real                  | kind_phys | none   | F        |
+!! | physics%optical_props_clds                               | optical_properties_for_cloudy_atmosphere                                                          | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_1scl |           | in     | F        |
+!! | physics%optical_props_aerosol                            | optical_properties_for_aerosols                                                                   | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_1scl |           | in     | F        |
+
 !!
 #endif
+! | physics%gas_concentrations                               | Gas_concentrations_for_RRTMGP_suite                                                               | DDT containing gas concentrations for RRTMGP radiation scheme                       | DDT           |    0 | ty_gas_concs_type          |           | none   | F        |
+
   type physics_type
 
     type(GFS_control_type), allocatable      :: Model(:)
@@ -1258,12 +1264,16 @@ module gmtb_scm_type_defs
     integer                             :: nthreads
 
     ! needed for RRTMGP
-    type(ty_gas_optics_rrtmgp_type) :: &
+    type(ty_gas_optics_rrtmgp) :: &
          kdist_lw, kdist_sw
-    type(ty_cloud_optics_type) :: &
+    type(ty_cloud_optics) :: &
          kdist_cldy_lw, kdist_cldy_sw
-    type(ty_gas_concs_type) :: &
-         gas_concentrations
+    type(ty_optical_props_1scl) :: &
+         optical_props_clds, optical_props_aerosol
+    !type(ty_gas_concs_type) :: &
+    !     gas_concentrations
+    real(kind_phys),allocatable,dimension(:,:) :: &
+         sfc_emiss_byband
 
     contains
       procedure :: create => physics_create

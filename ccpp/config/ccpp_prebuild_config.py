@@ -17,7 +17,7 @@ VARIABLE_DEFINITION_FILES = [
     'scm/src/gmtb_scm_type_defs.f90',
     'scm/src/gmtb_scm_physical_constants.f90',
     'ccpp/physics/physics/rte-rrtmgp/rrtmgp/mo_gas_optics_rrtmgp.F90',
-    'ccpp/physics/physics/rte-rrtmgp/rrtmgp/mo_gas_concentrations.F90',
+    'ccpp/physics/physics/rte-rrtmgp/rte/mo_optical_props.F90',
     'ccpp/physics/physics/rte-rrtmgp/extensions/cloud_optics/mo_cloud_optics.F90',
     ]
 
@@ -154,6 +154,7 @@ SCHEME_FILES = {
     'ccpp/physics/physics/radlw_main.f'                 : ['physics'],
     'ccpp/physics/physics/radsw_main.f'                 : ['physics'],
     'ccpp/physics/physics/rayleigh_damp.f'              : ['physics'],
+    'ccpp/physics/physics/rrtmgp_lw_main.F90'           : ['physics'],
     'ccpp/physics/physics/rrtmg_lw_post.F90'            : ['physics'],
     'ccpp/physics/physics/rrtmg_lw_pre.F90'             : ['physics'],
     'ccpp/physics/physics/rrtmg_sw_post.F90'            : ['physics'],
