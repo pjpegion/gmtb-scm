@@ -17,8 +17,10 @@ VARIABLE_DEFINITION_FILES = [
     'scm/src/gmtb_scm_type_defs.f90',
     'scm/src/gmtb_scm_physical_constants.f90',
     'ccpp/physics/physics/rte-rrtmgp/rrtmgp/mo_gas_optics_rrtmgp.F90',
+    'ccpp/physics/physics/rte-rrtmgp/rrtmgp/mo_gas_concentrations.F90',
     'ccpp/physics/physics/rte-rrtmgp/rte/mo_optical_props.F90',
     'ccpp/physics/physics/rte-rrtmgp/extensions/cloud_optics/mo_cloud_optics.F90',
+    'ccpp/physics/physics/rte-rrtmgp/extensions/mo_fluxes_byband.F90'
     ]
 
 # Add all physics scheme dependencies relative to basedir - note that the CCPP
@@ -155,6 +157,8 @@ SCHEME_FILES = {
     'ccpp/physics/physics/radsw_main.f'                 : ['physics'],
     'ccpp/physics/physics/rayleigh_damp.f'              : ['physics'],
     'ccpp/physics/physics/rrtmgp_lw_main.F90'           : ['physics'],
+    'ccpp/physics/physics/rrtmgp_lw_pre.F90'            : ['physics'],
+    'ccpp/physics/physics/rrtmgp_lw_post.F90'           : ['physics'],
     'ccpp/physics/physics/rrtmg_lw_post.F90'            : ['physics'],
     'ccpp/physics/physics/rrtmg_lw_pre.F90'             : ['physics'],
     'ccpp/physics/physics/rrtmg_sw_post.F90'            : ['physics'],
@@ -278,6 +282,13 @@ OPTIONAL_ARGUMENTS = {
              'mean_effective_radius_for_rain_drop',
              'cloud_snow_water_path',
              'mean_effective_radius_for_snow_flake',
+             'lw_fluxes_sfc',
+             'lw_fluxes_toa',
+             ],
+        },
+    'rrtmgp_lw_post' : {
+         'rrtmgp_lw_post_run' : [
+             'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
              'lw_fluxes_sfc',
              'lw_fluxes_toa',
              ],

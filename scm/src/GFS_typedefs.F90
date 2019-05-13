@@ -6,6 +6,11 @@ module GFS_typedefs
        use module_radsw_parameters,   only: cmpfsw_type, sfcfsw_type, topfsw_type, NBDSW
        use ozne_def,                  only: levozp, oz_coeff, oz_pres
        use h2o_def,                   only: levh2o, h2o_coeff, h2o_pres
+       use mo_gas_optics_rrtmgp,      only: ty_gas_optics_rrtmgp
+       use mo_optical_props,          only: ty_optical_props_1scl
+       use mo_cloud_optics,           only: ty_cloud_optics
+       use mo_gas_concentrations,     only: ty_gas_concs
+       use mo_fluxes_byband,          only: ty_fluxes_byband
 
        implicit none
 
@@ -523,14 +528,16 @@ module GFS_typedefs
     logical              :: lwhtr           !< flag to output lw heating rate (Radtend%lwhc)
     logical              :: swhtr           !< flag to output sw heating rate (Radtend%swhc)
     character(len=128)   :: rrtmgp_root     !< Directory of rte+rrtmgp source code
-    character(len=128)   :: kdist_lw_file_gas  !< RRTMGP K-distribution (LW) file for gaseous atmosphere
+    character(len=128)   :: kdist_lw_file_gas    !< RRTMGP K-distribution (LW) file for gaseous atmosphere
     character(len=128)   :: kdist_lw_file_clouds !< RRTMGP K-distribution file for clouds
-    character(len=128)   :: kdist_sw_file_gas  !< RRTMGP K-distribution (SW) file for gaseous atmosphere
+    integer              :: rrtmgp_nBandsLW      !< Number of RRTMGP LW bands. 
+    character(len=128)   :: kdist_sw_file_gas    !< RRTMGP K-distribution (SW) file for gaseous atmosphere
     character(len=128)   :: kdist_sw_file_clouds !< RRTMGP K-distribution file for clouds
-    integer              :: rrtmgp_cld_phys !< Flag to control how RRTGMP handles cloudy scenes.
-                                               !< = 0 ; Use RRTMGP implementation
-                                               !< = 1 ; Use RRTMGP (pade)
-                                               !< = 2 ; USE RRTMGP (LUT)
+    integer              :: rrtmgp_nBandsSW      !< Number of RRTMGP SW bands. 
+    integer              :: rrtmgp_cld_phys      !< Flag to control how RRTGMP handles cloudy scenes.
+                                                 !< = 0 ; Use RRTMGP implementation
+                                                 !< = 1 ; Use RRTMGP (pade)
+                                                 !< = 2 ; USE RRTMGP (LUT)
 
     !--- microphysical switch
     integer              :: ncld            !< choice of cloud scheme
@@ -1025,6 +1032,19 @@ module GFS_typedefs
     real (kind=kind_phys), pointer :: swhc (:,:)   => null()  !< clear sky sw heating rates ( k/s )
     real (kind=kind_phys), pointer :: lwhc (:,:)   => null()  !< clear sky lw heating rates ( k/s )
     real (kind=kind_phys), pointer :: lwhd (:,:,:) => null()  !< idea sky lw heating rates ( k/s )
+
+    ! Needed for RRTMGP
+    real(kind_phys),pointer,dimension(:,:) :: &
+         sfc_emiss_byband      => null()
+    type(ty_gas_optics_rrtmgp),pointer,dimension(:) :: &
+         kdist_lw  => null(), kdist_sw  => null()
+    type(ty_cloud_optics),pointer,dimension(:) :: &
+         kdist_cldy_lw => null(), kdist_cldy_sw => null() 
+    type(ty_optical_props_1scl),pointer,dimension(:) :: &
+         optical_props_clds => null(), optical_props_aerosol => null()
+    type(ty_gas_concs),pointer,dimension(:) :: gas_concentrations => null()
+    type(ty_fluxes_byband),pointer,dimension(:) :: &
+         fluxLW_allsky => null(), fluxLW_clrsky => null()
 
     contains
       procedure :: create  => radtend_create   !<   allocate array data
@@ -2045,9 +2065,11 @@ module GFS_typedefs
     logical              :: swhtr          = .true.          !< flag to output sw heating rate (Radtend%swhc)
     character(len=128)   :: rrtmgp_root        = ''          !< Directory of rte+rrtmgp source code
     character(len=128)   :: kdist_lw_file_gas     = ''       !< RRTMGP K-distribution (LW) file for gaseous atmosphere
-    character(len=128)   :: kdist_sw_file_gas     = ''       !< RRTMGP K-distribution (SW) file for gaseous atmosphere
     character(len=128)   :: kdist_lw_file_clouds  = ''       !< RRTMGP K-distribution (LW) file for clouds
+    integer              :: rrtmgp_nBandsLW       = 16       !< Number of RRTMGP LW bands. 
+    character(len=128)   :: kdist_sw_file_gas     = ''       !< RRTMGP K-distribution (SW) file for gaseous atmosphere
     character(len=128)   :: kdist_sw_file_clouds  = ''       !< RRTMGP K-distribution (LW) file for clouds
+    integer              :: rrtmgp_nBandsSW       = 14       !< Number of RRTMGP SW bands. 
     integer              :: rrtmgp_cld_phys = 0           !< Flag to control how RRTGMP handles cloudy scenes.
                                                              !< = 0 ; Use RRTMGP implementation
                                                              !< = 1 ; Use RRTMGP (pade)
@@ -2286,7 +2308,8 @@ module GFS_typedefs
                                isot, iems, iaer, icliq_sw, iovr_sw, iovr_lw, ictm, isubc_sw,&
                                isubc_lw, crick_proof, ccnorm, lwhtr, swhtr,                 &
                                rrtmgp_root, kdist_lw_file_gas, kdist_lw_file_clouds,        &
-                               kdist_sw_file_gas, kdist_sw_file_clouds, rrtmgp_cld_phys, &
+                               rrtmgp_nBandsLW, kdist_sw_file_gas, kdist_sw_file_clouds,    &
+                               rrtmgp_nBandsSW, rrtmgp_cld_phys,                            &
                           ! IN CCN forcing
                                iccn,                                                        &
                           !--- microphysical parameterizations
@@ -2463,11 +2486,13 @@ module GFS_typedefs
     Model%ccnorm           = ccnorm
     Model%lwhtr            = lwhtr
     Model%swhtr            = swhtr
-    Model%rrtmgp_root        = rrtmgp_root
+    Model%rrtmgp_root           = rrtmgp_root
     Model%kdist_lw_file_gas     = kdist_lw_file_gas
-    Model%kdist_sw_file_gas     = kdist_sw_file_gas
     Model%kdist_lw_file_clouds  = kdist_lw_file_clouds
+    Model%rrtmgp_nBandsLW       = rrtmgp_nBandsLW
+    Model%kdist_sw_file_gas     = kdist_sw_file_gas
     Model%kdist_sw_file_clouds  = kdist_sw_file_clouds
+    Model%rrtmgp_nBandsSW       = rrtmgp_nBandsSW
     Model%rrtmgp_cld_phys = rrtmgp_cld_phys
     ! The CCPP versions of the RRTMG lw/sw schemes are configured
     ! such that lw and sw heating rate are output, i.e. they rely
@@ -3138,9 +3163,11 @@ module GFS_typedefs
       print *, ' swhtr              : ', Model%swhtr
       print *, ' rrtmgp_root        : ', Model%rrtmgp_root
       print *, ' kdist_lw_file_gas     : ', Model%kdist_lw_file_gas
-      print *, ' kdist_sw_file_gas     : ', Model%kdist_sw_file_gas
       print *, ' kdist_lw_file_clouds  : ', Model%kdist_lw_file_clouds
+      print *, ' rrtmgp_nBandsLW       : ', Model%rrtmgp_nBandsLW
+      print *, ' kdist_sw_file_gas     : ', Model%kdist_sw_file_gas
       print *, ' kdist_sw_file_clouds  : ', Model%kdist_sw_file_clouds
+      print *, ' rrtmgp_nBandsSW       : ', Model%rrtmgp_nBandsSW
       print *, ' rrtmgp_cld_phys    : ', Model%rrtmgp_cld_phys
       print *, ' '
       print *, 'microphysical switch'
@@ -3622,6 +3649,9 @@ module GFS_typedefs
     Radtend%lwhd  = clear_val
     Radtend%lwhc  = clear_val
     Radtend%swhc  = clear_val
+
+    ! RRTMGP DDTs
+    allocate(Radtend%sfc_emiss_byband(Model%rrtmgp_nBandsLW,IM))
 
   end subroutine radtend_create
 
