@@ -535,7 +535,7 @@ module GFS_typedefs
     character(len=128)   :: kdist_sw_file_clouds !< RRTMGP K-distribution file for clouds
     integer              :: rrtmgp_nBandsSW      !< Number of RRTMGP SW bands. 
     integer              :: rrtmgp_cld_phys      !< Flag to control how RRTGMP handles cloudy scenes.
-                                                 !< = 0 ; Use RRTMGP implementation
+                                                 !< = 0 ; Use RRTMG implementation
                                                  !< = 1 ; Use RRTMGP (pade)
                                                  !< = 2 ; USE RRTMGP (LUT)
 
@@ -1034,17 +1034,24 @@ module GFS_typedefs
     real (kind=kind_phys), pointer :: lwhd (:,:,:) => null()  !< idea sky lw heating rates ( k/s )
 
     ! Needed for RRTMGP
-    real(kind_phys),pointer,dimension(:,:) :: &
-         sfc_emiss_byband      => null()
-    type(ty_gas_optics_rrtmgp),pointer,dimension(:) :: &
-         kdist_lw  => null(), kdist_sw  => null()
-    type(ty_cloud_optics),pointer,dimension(:) :: &
-         kdist_cldy_lw => null(), kdist_cldy_sw => null() 
-    type(ty_optical_props_1scl),pointer,dimension(:) :: &
-         optical_props_clds => null(), optical_props_aerosol => null()
-    type(ty_gas_concs),pointer,dimension(:) :: gas_concentrations => null()
-    type(ty_fluxes_byband),pointer,dimension(:) :: &
-         fluxLW_allsky => null(), fluxLW_clrsky => null()
+    type(ty_gas_optics_rrtmgp) :: & !
+         kdist_lw, & !
+         kdist_sw !
+    type(ty_cloud_optics) :: & !
+         kdist_cldy_lw, & !
+         kdist_cldy_sw !      
+    type(ty_optical_props_1scl)  ::  & !
+         optical_props_clds, & !
+         optical_props_aerosol   !
+    type(ty_gas_concs) :: & !
+         gas_concentrations   !
+    type(ty_fluxes_byband) :: & !
+         fluxLW_allsky, & !
+         fluxLW_clrsky, & !
+         fluxSW_allsky, & !
+         fluxSW_clrsky    !
+    real(kind_phys),pointer ::               & !
+         sfc_emiss_byband(:,:)    => null()    !
 
     contains
       procedure :: create  => radtend_create   !<   allocate array data
@@ -3650,7 +3657,7 @@ module GFS_typedefs
     Radtend%lwhc  = clear_val
     Radtend%swhc  = clear_val
 
-    ! RRTMGP DDTs
+    ! RRTMGP
     allocate(Radtend%sfc_emiss_byband(Model%rrtmgp_nBandsLW,IM))
 
   end subroutine radtend_create
