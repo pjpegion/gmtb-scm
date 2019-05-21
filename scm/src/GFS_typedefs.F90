@@ -1034,22 +1034,22 @@ module GFS_typedefs
     real (kind=kind_phys), pointer :: lwhd (:,:,:) => null()  !< idea sky lw heating rates ( k/s )
 
     ! Needed for RRTMGP
-    type(ty_gas_optics_rrtmgp) :: & !
-         kdist_lw, & !
-         kdist_sw !
-    type(ty_cloud_optics) :: & !
-         kdist_cldy_lw, & !
-         kdist_cldy_sw !      
-    type(ty_optical_props_1scl)  ::  & !
-         optical_props_clds, & !
-         optical_props_aerosol   !
-    type(ty_gas_concs) :: & !
-         gas_concentrations   !
-    type(ty_fluxes_byband) :: & !
-         fluxLW_allsky, & !
-         fluxLW_clrsky, & !
-         fluxSW_allsky, & !
-         fluxSW_clrsky    !
+!    type(ty_gas_optics_rrtmgp) :: & !
+!         kdist_lw, & !
+!         kdist_sw !
+!    type(ty_cloud_optics) :: & !
+!         kdist_cldy_lw, & !
+!         kdist_cldy_sw !      
+!    type(ty_optical_props_1scl)  ::  & !
+!         optical_props_clds, & !
+!         optical_props_aerosol   !
+!    type(ty_gas_concs) :: & !
+!         gas_concentrations   !
+!    type(ty_fluxes_byband) :: & !
+!         fluxLW_allsky, & !
+!         fluxLW_clrsky, & !
+!         fluxSW_allsky, & !
+!         fluxSW_clrsky    !
     real(kind_phys),pointer ::               & !
          sfc_emiss_byband(:,:)    => null()    !
 
@@ -3659,6 +3659,7 @@ module GFS_typedefs
 
     ! RRTMGP
     allocate(Radtend%sfc_emiss_byband(Model%rrtmgp_nBandsLW,IM))
+    Radtend%sfc_emiss_byband = clear_val
 
   end subroutine radtend_create
 

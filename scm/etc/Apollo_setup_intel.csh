@@ -1,6 +1,6 @@
 #!/bin/tcsh
 
-echo "Setting environment variables for SCM-CCPP on Theia with icc/ifort"
+echo "Setting environment variables for SCM-CCPP on NOAA-ESRL-PSD/Apollo with icc/ifort"
 
 #load the modules in order to compile the GMTB SCM
 echo "Loading intel and netcdf modules..."

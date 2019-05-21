@@ -111,8 +111,6 @@ SCHEME_FILES = {
     'ccpp/physics/physics/GFS_rrtmg_setup.F90'          : ['physics'],
     'ccpp/physics/physics/rrtmgp_lw.F90'                : ['physics'],
     'ccpp/physics/physics/rrtmgp_sw.F90'                : ['physics'],
-    'ccpp/physics/physics/rrtmgp_lw_post.F90'           : ['physics'],
-    'ccpp/physics/physics/rrtmgp_lw_pre.F90'            : ['physics'],
     'ccpp/physics/physics/rrtmgp_sw_post.F90'           : ['physics'],
     'ccpp/physics/physics/rrtmgp_sw_pre.F90'            : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_setup.F90'         : ['physics'],
@@ -270,6 +268,7 @@ OPTIONAL_ARGUMENTS = {
          },
     'rrtmgp_lw' : {
          'rrtmgp_lw_run' : [
+             'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
              'cloud_liquid_water_path',
              'mean_effective_radius_for_liquid_cloud',
              'cloud_ice_water_path',
@@ -280,8 +279,8 @@ OPTIONAL_ARGUMENTS = {
              'mean_effective_radius_for_snow_flake',
              ],
         },
-    'rrtmgp_lw_post' : {
-         'rrtmgp_lw_post_run' : [
+    'GFS_rrtmgp_post' : {
+         'GFS_rrtmgp_post_run' : [
              'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
              'lw_fluxes_sfc',
              'lw_fluxes_toa',
