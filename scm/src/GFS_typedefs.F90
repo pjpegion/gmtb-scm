@@ -1034,25 +1034,12 @@ module GFS_typedefs
     real (kind=kind_phys), pointer :: lwhd (:,:,:) => null()  !< idea sky lw heating rates ( k/s )
 
     ! Needed for RRTMGP
-!    type(ty_gas_optics_rrtmgp) :: & !
-!         kdist_lw, & !
-!         kdist_sw !
-!    type(ty_cloud_optics) :: & !
-!         kdist_cldy_lw, & !
-!         kdist_cldy_sw !      
-!    type(ty_optical_props_1scl)  ::  & !
-!         optical_props_clds, & !
-!         optical_props_aerosol   !
-!    type(ty_gas_concs) :: & !
-!         gas_concentrations   !
-!    type(ty_fluxes_byband) :: & !
-!         fluxLW_allsky, & !
-!         fluxLW_clrsky, & !
-!         fluxSW_allsky, & !
-!         fluxSW_clrsky    !
     real(kind_phys),pointer ::               & !
-         sfc_emiss_byband(:,:)    => null()    !
-
+         sfc_emiss_byband(:,:)    => null(), & !
+         sfc_alb_nir_dir(:,:)     => null(), & !
+         sfc_alb_nir_dif(:,:)     => null(), & !
+         sfc_alb_uvvis_dir(:,:)   => null(), & !
+         sfc_alb_uvvis_dif(:,:)   => null()    ! 
     contains
       procedure :: create  => radtend_create   !<   allocate array data
   end type GFS_radtend_type
@@ -3659,7 +3646,15 @@ module GFS_typedefs
 
     ! RRTMGP
     allocate(Radtend%sfc_emiss_byband(Model%rrtmgp_nBandsLW,IM))
-    Radtend%sfc_emiss_byband = clear_val
+    allocate(Radtend%sfc_alb_nir_dir(Model%rrtmgp_nBandsLW,IM))
+    allocate(Radtend%sfc_alb_nir_dif(Model%rrtmgp_nBandsLW,IM))
+    allocate(Radtend%sfc_alb_uvvis_dir(Model%rrtmgp_nBandsLW,IM))
+    allocate(Radtend%sfc_alb_uvvis_dif(Model%rrtmgp_nBandsLW,IM))
+    Radtend%sfc_emiss_byband   = clear_val
+    Radtend%sfc_alb_nir_dir    = clear_val
+    Radtend%sfc_alb_nir_dif    = clear_val
+    Radtend%sfc_alb_uvvis_dir  = clear_val
+    Radtend%sfc_alb_uvvis_dif  = clear_val
 
   end subroutine radtend_create
 
