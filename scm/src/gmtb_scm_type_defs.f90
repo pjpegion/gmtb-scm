@@ -1223,12 +1223,15 @@ module gmtb_scm_type_defs
 !! | physics%optical_propsLW_aerosol                          | longwave_optical_properties_for_aerosols                                                          | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_1scl |           | none   | F        |
 !! | physics%optical_propsSW_clds                             | shortwave_optical_properties_for_cloudy_atmosphere                                                | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_2str |           | none   | F        |
 !! | physics%optical_propsSW_aerosol                          | shortwave_optical_properties_for_aerosols                                                         | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_2str |           | none   | F        |
-!! | physics%gas_concentrations_lw                            | Gas_concentrations_for_RRTMGP_suite_lw                                                            | DDT containing gas concentrations for RRTMGP radiation scheme                       | DDT           |    0 | ty_gas_concs          |           | none   | F        |
-!! | physics%gas_concentrations_sw                            | Gas_concentrations_for_RRTMGP_suite_sw                                                            | DDT containing gas concentrations for RRTMGP radiation scheme                       | DDT           |    0 | ty_gas_concs          |           | none   | F        |
-!! | physics%fluxLW_allsky                                    | lw_flux_profiles_byband_allsky                                                                    | Fortran DDT containing RRTMGP 3D fluxes                                             | DDT           |    0 | ty_fluxes_byband      |           | none   | F        |
-!! | physics%fluxLW_clrsky                                    | lw_flux_profiles_byband_clrsky                                                                    | Fortran DDT containing RRTMGP 3D fluxes                                             | DDT           |    0 | ty_fluxes_byband      |           | none   | F        |
-!! | physics%fluxSW_allsky                                    | sw_flux_profiles_byband_allsky                                                                    | Fortran DDT containing RRTMGP 3D fluxes                                             | DDT           |    0 | ty_fluxes_byband      |           | none   | F        |
-!! | physics%fluxSW_clrsky                                    | sw_flux_profiles_byband_clrsky                                                                    | Fortran DDT containing RRTMGP 3D fluxes                                             | DDT           |    0 | ty_fluxes_byband      |           | none   | F        |
+!! | physics%gas_concentrations                               | Gas_concentrations_for_RRTMGP_suite                                                               | DDT containing gas concentrations for RRTMGP radiation scheme                       | DDT           |    0 | ty_gas_concs          |           | none   | F        |
+!! | physics%fluxlwUP_allsky                                  | lw_flux_profile_upward_allsky                                                                     | RRTMGP upward longwave all-sky flux profile                                         | W m-2         |    2 | real                  | kind_phys | none   | F        |
+!! | physics%fluxlwDOWN_allsky                                | lw_flux_profile_downward_allsky                                                                   | RRTMGP downward longwave all-sky flux profile                                       | W m-2         |    2 | real                  | kind_phys | none   | F        |
+!! | physics%fluxlwUP_clrsky                                  | lw_flux_profile_upward_clrsky                                                                     | RRTMGP upward longwave clr-sky flux profile                                         | W m-2         |    2 | real                  | kind_phys | none   | F        |
+!! | physics%fluxlwDOWN_clrsky                                | lw_flux_profile_downward_clrsky                                                                   | RRTMGP downward longwave clr-sky flux profile                                       | W m-2         |    2 | real                  | kind_phys | none   | F        |
+!! | physics%fluxswUP_allsky                                  | sw_flux_profile_upward_allsky                                                                     | RRTMGP upward shortwave all-sky flux profile                                        | W m-2         |    2 | real                  | kind_phys | none   | F        |
+!! | physics%fluxswDOWN_allsky                                | sw_flux_profile_downward_allsky                                                                   | RRTMGP downward shortwave all-sky flux profile                                      | W m-2         |    2 | real                  | kind_phys | none   | F        |
+!! | physics%fluxswUP_clrsky                                  | sw_flux_profile_upward_clrsky                                                                     | RRTMGP upward shortwave clr-sky flux profile                                        | W m-2         |    2 | real                  | kind_phys | none   | F        |
+!! | physics%fluxswDOWN_clrsky                                | sw_flux_profile_downward_clrsky                                                                   | RRTMGP downward shortwave clr-sky flux profile                                      | W m-2         |    2 | real                  | kind_phys | none   | F        |
 !! | physics%kdist_lw                                         | K_distribution_file_for_RRTMGP_LW_scheme                                                          | DDT containing spectral information for RRTMGP LW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
 !! | physics%kdist_sw                                         | K_distribution_file_for_RRTMGP_SW_scheme                                                          | DDT containing spectral information for RRTMGP SW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
 !! | physics%kdist_cldy_lw                                    | K_distribution_file_for_cloudy_RRTMGP_LW_scheme                                                   | DDT containing spectral information for cloudy RRTMGP LW radiation scheme           | DDT           |    0 | ty_cloud_optics       |           | none   | F        |
@@ -1288,12 +1291,16 @@ module gmtb_scm_type_defs
          optical_propsSW_clds, & !
          optical_propsSW_aerosol   !
     type(ty_gas_concs) :: & !
-         gas_concentrations_lw, gas_concentrations_sw   !
-    type(ty_fluxes_byband) :: & !
-         fluxLW_allsky, & !
-         fluxLW_clrsky, & !
-         fluxSW_allsky, & !
-         fluxSW_clrsky    !
+         gas_concentrations
+    real(kind_phys),allocatable,dimension(:,:) :: &
+         fluxlwUP_allsky,   &
+         fluxlwDOWN_allsky, &
+         fluxlwUP_clrsky,   &
+         fluxlwDOWN_clrsky, &
+         fluxswUP_allsky,   &
+         fluxswDOWN_allsky, &
+         fluxswUP_clrsky,   &
+         fluxswDOWN_clrsky
 
     contains
       procedure :: create => physics_create
@@ -1613,6 +1620,10 @@ module gmtb_scm_type_defs
     physics%nthreads = 1
 
     ! RRTMGP
+    allocate(physics%fluxlwUP_allsky(n_columns,n_levels), physics%fluxlwDOWN_allsky(n_columns,n_levels),&
+             physics%fluxlwUP_clrsky(n_columns,n_levels), physics%fluxlwDOWN_clrsky(n_columns,n_levels),&
+             physics%fluxswUP_allsky(n_columns,n_levels), physics%fluxswDOWN_allsky(n_columns,n_levels),&
+             physics%fluxswUP_clrsky(n_columns,n_levels), physics%fluxswDOWN_clrsky(n_columns,n_levels))
 
   end subroutine physics_create
 
