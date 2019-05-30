@@ -15,7 +15,6 @@
       <scheme>GFS_suite_interstitial_rad_reset</scheme>
       <scheme>GFS_rrtmgp_pre</scheme>
       <scheme>GFS_rrtmgp_sw</scheme>
-      <scheme>rrtmgp_sw_pre</scheme>
       <scheme>rrtmgp_sw</scheme>
       <scheme>GFS_rrtmgp_lw</scheme>
       <scheme>rrtmgp_lw</scheme>

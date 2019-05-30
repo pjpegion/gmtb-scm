@@ -1318,6 +1318,8 @@ module GFS_typedefs
     logical              , pointer      :: otspt(:,:)       => null()  !<
     integer                             :: oz_coeff                    !<
     real (kind=kind_phys), pointer      :: oz_pres(:)       => null()  !<
+    real (kind=kind_phys), pointer      :: p_lay(:,:)       => null()  !<
+    real (kind=kind_phys), pointer      :: p_lev(:,:)       => null()  !<
     real (kind=kind_phys), pointer      :: plvl(:,:)        => null()  !<
     real (kind=kind_phys), pointer      :: plyr(:,:)        => null()  !<
     real (kind=kind_phys), pointer      :: prcpmp(:)        => null()  !<
@@ -1361,6 +1363,8 @@ module GFS_typedefs
     integer, pointer                    :: soiltype(:)      => null()  !<
     real (kind=kind_phys), pointer      :: stress(:)        => null()  !<
     real (kind=kind_phys), pointer      :: theta(:)         => null()  !<
+    real (kind=kind_phys), pointer      :: t_lev(:,:)       => null()  !<
+    real (kind=kind_phys), pointer      :: t_lay(:,:)       => null()  !<
     real (kind=kind_phys), pointer      :: tlvl(:,:)        => null()  !<
     real (kind=kind_phys), pointer      :: tlyr(:,:)        => null()  !<
     integer                             :: tracers_start_index         !<
@@ -4055,6 +4059,8 @@ module GFS_typedefs
     allocate (Interstitial%oc         (IM))
     allocate (Interstitial%olyr       (IM,Model%levr+LTP))
     allocate (Interstitial%oz_pres    (levozp))
+    allocate (Interstitial%p_lev      (IM,Model%levs+1))
+    allocate (Interstitial%p_lay      (IM,Model%levs))
     allocate (Interstitial%plvl       (IM,Model%levr+1+LTP))
     allocate (Interstitial%plyr       (IM,Model%levr+LTP))
     allocate (Interstitial%prnum      (IM,Model%levs))
@@ -4088,6 +4094,8 @@ module GFS_typedefs
     allocate (Interstitial%soiltype   (IM))
     allocate (Interstitial%stress     (IM))
     allocate (Interstitial%theta      (IM))
+    allocate (Interstitial%t_lev      (IM,Model%levs+1))
+    allocate (Interstitial%t_lay      (IM,Model%levs))
     allocate (Interstitial%tlvl       (IM,Model%levr+1+LTP))
     allocate (Interstitial%tlyr       (IM,Model%levr+LTP))
     allocate (Interstitial%trans      (IM))
@@ -4304,6 +4312,8 @@ module GFS_typedefs
     Interstitial%mtopa        = 0
     Interstitial%nday         = 0
     Interstitial%olyr         = clear_val
+    Interstitial%p_lay        = clear_val
+    Interstitial%p_lev        = clear_val
     Interstitial%plvl         = clear_val
     Interstitial%plyr         = clear_val
     Interstitial%qlyr         = clear_val
@@ -4315,6 +4325,8 @@ module GFS_typedefs
     Interstitial%scmpsw%visbm = clear_val
     Interstitial%scmpsw%visdf = clear_val
     Interstitial%sfcalb       = clear_val
+    Interstitial%t_lev        = clear_val
+    Interstitial%t_lay        = clear_val
     Interstitial%tlvl         = clear_val
     Interstitial%tlyr         = clear_val
     Interstitial%tsfa         = clear_val
@@ -4612,6 +4624,8 @@ module GFS_typedefs
     write (0,*) 'sum(Interstitial%oc          ) = ', sum(Interstitial%oc          )
     write (0,*) 'sum(Interstitial%olyr        ) = ', sum(Interstitial%olyr        )
     write (0,*) 'sum(Interstitial%plvl        ) = ', sum(Interstitial%plvl        )
+    write (0,*) 'sum(Interstitial%p_lay       ) = ', sum(Interstitial%p_lay       )
+    write (0,*) 'sum(Interstitial%p_lev       ) = ', sum(Interstitial%p_lev       )
     write (0,*) 'sum(Interstitial%plyr        ) = ', sum(Interstitial%plyr        )
     write (0,*) 'sum(Interstitial%prcpmp      ) = ', sum(Interstitial%prcpmp      )
     write (0,*) 'sum(Interstitial%prnum       ) = ', sum(Interstitial%prnum       )
@@ -4653,6 +4667,8 @@ module GFS_typedefs
     write (0,*) 'sum(Interstitial%soiltype    ) = ', sum(Interstitial%soiltype    )
     write (0,*) 'sum(Interstitial%stress      ) = ', sum(Interstitial%stress      )
     write (0,*) 'sum(Interstitial%theta       ) = ', sum(Interstitial%theta       )
+    write (0,*) 'sum(Interstitial%t_lev       ) = ', sum(Interstitial%t_lev       )
+    write (0,*) 'sum(Interstitial%t_lay       ) = ', sum(Interstitial%t_lay       )
     write (0,*) 'sum(Interstitial%tlvl        ) = ', sum(Interstitial%tlvl        )
     write (0,*) 'sum(Interstitial%tlyr        ) = ', sum(Interstitial%tlyr        )
     write (0,*) 'sum(Interstitial%trans       ) = ', sum(Interstitial%trans       )
