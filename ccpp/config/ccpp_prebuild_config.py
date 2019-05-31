@@ -111,13 +111,12 @@ SCHEME_FILES = {
     'ccpp/physics/physics/GFS_rrtmg_setup.F90'          : ['physics'],
     'ccpp/physics/physics/rrtmgp_lw.F90'                : ['physics'],
     'ccpp/physics/physics/rrtmgp_sw.F90'                : ['physics'],
-    'ccpp/physics/physics/rrtmgp_sw.F90'                : ['physics'],
-    'ccpp/physics/physics/rrtmgp_sw_post.F90'           : ['physics'],
-    'ccpp/physics/physics/rrtmgp_sw_pre.F90'            : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_setup.F90'         : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_pre.F90'           : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_lw.F90'            : ['physics'],
+    'ccpp/physics/physics/GFS_rrtmgp_lw_post.F90'       : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_sw.F90'            : ['physics'],
+    'ccpp/physics/physics/GFS_rrtmgp_sw_post.F90'       : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_post.F90'          : ['physics'],
     'ccpp/physics/physics/GFS_suite_interstitial.F90'   : ['physics'],
     'ccpp/physics/physics/GFS_surface_generic.F90'      : ['physics'],
@@ -262,6 +261,14 @@ OPTIONAL_ARGUMENTS = {
              'sw_fluxes_toa',
              ],
          },
+    'GFS_rrtmgp_sw_post' : {
+         'GFS_rrtmgp_sw_post_run' : [
+             'tendency_of_air_temperature_due_to_shortwave_heating_assuming_clear_sky_on_radiation_time_step',
+             'components_of_surface_downward_shortwave_fluxes',
+             'sw_fluxes_sfc',
+             'sw_fluxes_toa',
+             ],
+         },
     'rrtmgp_lw' : {
          'rrtmgp_lw_run' : [
              'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
@@ -269,15 +276,16 @@ OPTIONAL_ARGUMENTS = {
              'lw_fluxes_toa',
              ],
         },
-    'GFS_rrtmgp_post' : {
-         'GFS_rrtmgp_post_run' : [
-             'tendency_of_air_temperature_due_to_shortwave_heating_assuming_clear_sky_on_radiation_time_step',
+    'GFS_rrtmgp_lw_post' : {
+         'GFS_rrtmgp_lw_post_run' : [
              'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
-             'components_of_surface_downward_shortwave_fluxes',
-             'sw_fluxes_sfc',
-             'sw_fluxes_toa',
              'lw_fluxes_sfc',
              'lw_fluxes_toa',
+             ],
+         },
+    'GFS_rrtmgp_post' : {
+         'GFS_rrtmgp_post_run' : [
+             'components_of_surface_downward_shortwave_fluxes',
              ],
          },
     'mp_thompson_hrrr' : {

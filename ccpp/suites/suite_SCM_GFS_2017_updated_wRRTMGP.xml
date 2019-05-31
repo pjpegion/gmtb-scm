@@ -16,8 +16,10 @@
       <scheme>GFS_rrtmgp_pre</scheme>
       <scheme>GFS_rrtmgp_sw</scheme>
       <scheme>rrtmgp_sw</scheme>
+      <scheme>GFS_rrtmgp_sw_post</scheme>
       <scheme>GFS_rrtmgp_lw</scheme>
       <scheme>rrtmgp_lw</scheme>
+      <scheme>GFS_rrtmgp_lw_post</scheme>
       <scheme>GFS_rrtmgp_post</scheme>
     </subcycle>
   </group>
