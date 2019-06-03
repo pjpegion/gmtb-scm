@@ -91,6 +91,7 @@ SCHEME_FILES_DEPENDENCIES = [
     'ccpp/physics/physics/wv_saturation.F',
     'scm/src/GFS_typedefs.F90',
     'scm/src/CCPP_typedefs.F90',
+    'ccpp/physics/physics/rrtmgp_aux.F90',
     'ccpp/physics/physics/rrtmgp_lw_cloud_optics.F90',
     'ccpp/physics/physics/rrtmgp_sw_cloud_optics.F90',
 ]

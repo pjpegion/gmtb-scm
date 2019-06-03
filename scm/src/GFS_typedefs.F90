@@ -528,13 +528,13 @@ module GFS_typedefs
     logical              :: lwhtr           !< flag to output lw heating rate (Radtend%lwhc)
     logical              :: swhtr           !< flag to output sw heating rate (Radtend%swhc)
     character(len=128)   :: rrtmgp_root     !< Directory of rte+rrtmgp source code
-    character(len=128)   :: kdist_lw_file_gas    !< RRTMGP K-distribution (LW) file for gaseous atmosphere
-    character(len=128)   :: kdist_lw_file_clouds !< RRTMGP K-distribution file for clouds
+    character(len=128)   :: lw_file_gas          !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
+    character(len=128)   :: lw_file_clouds       !< RRTMGP file containing coefficients used to compute clouds optical properties 
     integer              :: rrtmgp_nBandsLW      !< Number of RRTMGP LW bands. 
-    character(len=128)   :: kdist_sw_file_gas    !< RRTMGP K-distribution (SW) file for gaseous atmosphere
-    character(len=128)   :: kdist_sw_file_clouds !< RRTMGP K-distribution file for clouds
+    character(len=128)   :: sw_file_gas          !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
+    character(len=128)   :: sw_file_clouds       !< RRTMGP file containing coefficients used to compute clouds optical properties  
     integer              :: rrtmgp_nBandsSW      !< Number of RRTMGP SW bands. 
-    integer              :: rrtmgp_cld_phys      !< Flag to control how RRTGMP handles cloudy scenes.
+    integer              :: rrtmgp_cld_optics    !< Flag to control which RRTMGP routine to compute cloud-optics.
                                                  !< = 0 ; Use RRTMG implementation
                                                  !< = 1 ; Use RRTMGP (pade)
                                                  !< = 2 ; USE RRTMGP (LUT)
@@ -2062,13 +2062,13 @@ module GFS_typedefs
     logical              :: lwhtr          = .true.          !< flag to output lw heating rate (Radtend%lwhc)
     logical              :: swhtr          = .true.          !< flag to output sw heating rate (Radtend%swhc)
     character(len=128)   :: rrtmgp_root        = ''          !< Directory of rte+rrtmgp source code
-    character(len=128)   :: kdist_lw_file_gas     = ''       !< RRTMGP K-distribution (LW) file for gaseous atmosphere
-    character(len=128)   :: kdist_lw_file_clouds  = ''       !< RRTMGP K-distribution (LW) file for clouds
+    character(len=128)   :: lw_file_gas     = ''             !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
+    character(len=128)   :: lw_file_clouds  = ''             !< RRTMGP file containing coefficients used to compute clouds optical properties 
     integer              :: rrtmgp_nBandsLW       = 16       !< Number of RRTMGP LW bands. 
-    character(len=128)   :: kdist_sw_file_gas     = ''       !< RRTMGP K-distribution (SW) file for gaseous atmosphere
-    character(len=128)   :: kdist_sw_file_clouds  = ''       !< RRTMGP K-distribution (LW) file for clouds
+    character(len=128)   :: sw_file_gas     = ''             !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
+    character(len=128)   :: sw_file_clouds  = ''             !< RRTMGP file containing coefficients used to compute clouds optical properties 
     integer              :: rrtmgp_nBandsSW       = 14       !< Number of RRTMGP SW bands. 
-    integer              :: rrtmgp_cld_phys = 0           !< Flag to control how RRTGMP handles cloudy scenes.
+    integer              :: rrtmgp_cld_optics = 0            !<  Flag to control which RRTMGP routine to compute cloud-optics.
                                                              !< = 0 ; Use RRTMGP implementation
                                                              !< = 1 ; Use RRTMGP (pade)
                                                              !< = 2 ; USE RRTMGP (LUT)
@@ -2305,9 +2305,9 @@ module GFS_typedefs
                                fhswr, fhlwr, levr, nfxr, aero_in, iflip, isol, ico2, ialb,  &
                                isot, iems, iaer, icliq_sw, iovr_sw, iovr_lw, ictm, isubc_sw,&
                                isubc_lw, crick_proof, ccnorm, lwhtr, swhtr,                 &
-                               rrtmgp_root, kdist_lw_file_gas, kdist_lw_file_clouds,        &
-                               rrtmgp_nBandsLW, kdist_sw_file_gas, kdist_sw_file_clouds,    &
-                               rrtmgp_nBandsSW, rrtmgp_cld_phys,                            &
+                               rrtmgp_root, lw_file_gas, lw_file_clouds,                    &
+                               rrtmgp_nBandsLW, sw_file_gas, sw_file_clouds,                &
+                               rrtmgp_nBandsSW, rrtmgp_cld_optics,                           &
                           ! IN CCN forcing
                                iccn,                                                        &
                           !--- microphysical parameterizations
@@ -2484,14 +2484,14 @@ module GFS_typedefs
     Model%ccnorm           = ccnorm
     Model%lwhtr            = lwhtr
     Model%swhtr            = swhtr
-    Model%rrtmgp_root           = rrtmgp_root
-    Model%kdist_lw_file_gas     = kdist_lw_file_gas
-    Model%kdist_lw_file_clouds  = kdist_lw_file_clouds
-    Model%rrtmgp_nBandsLW       = rrtmgp_nBandsLW
-    Model%kdist_sw_file_gas     = kdist_sw_file_gas
-    Model%kdist_sw_file_clouds  = kdist_sw_file_clouds
-    Model%rrtmgp_nBandsSW       = rrtmgp_nBandsSW
-    Model%rrtmgp_cld_phys = rrtmgp_cld_phys
+    Model%rrtmgp_root       = rrtmgp_root
+    Model%lw_file_gas       = lw_file_gas
+    Model%lw_file_clouds    = lw_file_clouds
+    Model%rrtmgp_nBandsLW   = rrtmgp_nBandsLW
+    Model%sw_file_gas       = sw_file_gas
+    Model%sw_file_clouds    = sw_file_clouds
+    Model%rrtmgp_nBandsSW   = rrtmgp_nBandsSW
+    Model%rrtmgp_cld_optics = rrtmgp_cld_optics
     ! The CCPP versions of the RRTMG lw/sw schemes are configured
     ! such that lw and sw heating rate are output, i.e. they rely
     ! on the corresponding arrays to be allocated.
@@ -3160,13 +3160,13 @@ module GFS_typedefs
       print *, ' lwhtr              : ', Model%lwhtr
       print *, ' swhtr              : ', Model%swhtr
       print *, ' rrtmgp_root        : ', Model%rrtmgp_root
-      print *, ' kdist_lw_file_gas     : ', Model%kdist_lw_file_gas
-      print *, ' kdist_lw_file_clouds  : ', Model%kdist_lw_file_clouds
-      print *, ' rrtmgp_nBandsLW       : ', Model%rrtmgp_nBandsLW
-      print *, ' kdist_sw_file_gas     : ', Model%kdist_sw_file_gas
-      print *, ' kdist_sw_file_clouds  : ', Model%kdist_sw_file_clouds
-      print *, ' rrtmgp_nBandsSW       : ', Model%rrtmgp_nBandsSW
-      print *, ' rrtmgp_cld_phys    : ', Model%rrtmgp_cld_phys
+      print *, ' lw_file_gas        : ', Model%lw_file_gas
+      print *, ' lw_file_clouds     : ', Model%lw_file_clouds
+      print *, ' rrtmgp_nBandsLW    : ', Model%rrtmgp_nBandsLW
+      print *, ' sw_file_gas        : ', Model%sw_file_gas
+      print *, ' sw_file_clouds     : ', Model%sw_file_clouds
+      print *, ' rrtmgp_nBandsSW    : ', Model%rrtmgp_nBandsSW
+      print *, ' rrtmgp_cld_optics  : ', Model%rrtmgp_cld_optics
       print *, ' '
       print *, 'microphysical switch'
       print *, ' ncld              : ', Model%ncld
@@ -3650,10 +3650,10 @@ module GFS_typedefs
 
     ! RRTMGP
     allocate(Radtend%sfc_emiss_byband(Model%rrtmgp_nBandsLW,IM))
-    allocate(Radtend%sfc_alb_nir_dir(Model%rrtmgp_nBandsLW,IM))
-    allocate(Radtend%sfc_alb_nir_dif(Model%rrtmgp_nBandsLW,IM))
-    allocate(Radtend%sfc_alb_uvvis_dir(Model%rrtmgp_nBandsLW,IM))
-    allocate(Radtend%sfc_alb_uvvis_dif(Model%rrtmgp_nBandsLW,IM))
+    allocate(Radtend%sfc_alb_nir_dir(Model%rrtmgp_nBandsSW,IM))
+    allocate(Radtend%sfc_alb_nir_dif(Model%rrtmgp_nBandsSW,IM))
+    allocate(Radtend%sfc_alb_uvvis_dir(Model%rrtmgp_nBandsSW,IM))
+    allocate(Radtend%sfc_alb_uvvis_dif(Model%rrtmgp_nBandsSW,IM))
     Radtend%sfc_emiss_byband   = clear_val
     Radtend%sfc_alb_nir_dir    = clear_val
     Radtend%sfc_alb_nir_dif    = clear_val

@@ -6,7 +6,7 @@
        use_ufo        = .true.
        pre_rad        = .false.
        ncld           = 1
-       imp_physics    = 10
+       imp_physics    = 11
        pdfcld         = .false.
        fhswr          = 3600.
        fhlwr          = 3600.
@@ -48,9 +48,9 @@
        do_skeb        = .false.
        do_sfcperts    = .false.
        rrtmgp_root    = '/home/dswales/Projects/CCPPdev/gmtb-scm/ccpp/physics/physics/rte-rrtmgp/'
-       kdist_lw_file_gas = 'rrtmgp/data/rrtmgp-data-lw-g256-2018-12-04.nc'
-       kdist_lw_file_clouds  = 'extensions/cloud_optics/rrtmgp-cloud-optics-coeffs-lw.nc'
-       kdist_sw_file_gas = 'rrtmgp/data/rrtmgp-data-sw-g224-2018-12-04.nc'
-       kdist_sw_file_clouds  = 'extensions/cloud_optics/rrtmgp-cloud-optics-coeffs-sw.nc'
-       rrtmgp_cld_phys = 1
+       lw_file_gas = 'rrtmgp/data/rrtmgp-data-lw-g256-2018-12-04.nc'
+       lw_file_clouds  = 'extensions/cloud_optics/rrtmgp-cloud-optics-coeffs-lw.nc'
+       sw_file_gas = 'rrtmgp/data/rrtmgp-data-sw-g224-2018-12-04.nc'
+       sw_file_clouds  = 'extensions/cloud_optics/rrtmgp-cloud-optics-coeffs-sw.nc'
+       rrtmgp_cld_optics = 1
 /

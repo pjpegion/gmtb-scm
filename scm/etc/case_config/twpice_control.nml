@@ -4,7 +4,7 @@ n_columns = 1,
 case_name = 'twpice_00',
 dt = 600.0,
 time_scheme = 1,
-runtime = 60000,
+runtime = 6000,
 output_frequency = 600.0,
 n_levels = 64,
 output_dir = 'output_twpice_control',
@@ -24,7 +24,7 @@ hour = 3,
 $end
 
 $physics_config
-physics_suite = 'suite_SCM_GFS_2017_updated',
+physics_suite = 'SCM_GFS_2017_updated',
 physics_suite_dir = '../../ccpp/suites/',
 physics_nml = '../etc/case_config/input_namelists/input_fv3_control.nml',
 column_area = 2.0E9,

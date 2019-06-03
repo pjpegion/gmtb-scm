@@ -1236,10 +1236,10 @@ module gmtb_scm_type_defs
 !! | physics%fluxswDOWN_allsky                                | sw_flux_profile_downward_allsky                                                                   | RRTMGP downward shortwave all-sky flux profile                                      | W m-2         |    2 | real                  | kind_phys | none   | F        |
 !! | physics%fluxswUP_clrsky                                  | sw_flux_profile_upward_clrsky                                                                     | RRTMGP upward shortwave clr-sky flux profile                                        | W m-2         |    2 | real                  | kind_phys | none   | F        |
 !! | physics%fluxswDOWN_clrsky                                | sw_flux_profile_downward_clrsky                                                                   | RRTMGP downward shortwave clr-sky flux profile                                      | W m-2         |    2 | real                  | kind_phys | none   | F        |
-!! | physics%kdist_lw                                         | K_distribution_file_for_RRTMGP_LW_scheme                                                          | DDT containing spectral information for RRTMGP LW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
-!! | physics%kdist_sw                                         | K_distribution_file_for_RRTMGP_SW_scheme                                                          | DDT containing spectral information for RRTMGP SW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
-!! | physics%kdist_cldy_lw                                    | K_distribution_file_for_cloudy_RRTMGP_LW_scheme                                                   | DDT containing spectral information for cloudy RRTMGP LW radiation scheme           | DDT           |    0 | ty_cloud_optics       |           | none   | F        |
-!! | physics%kdist_cldy_sw                                    | K_distribution_file_for_cloudy_RRTMGP_SW_scheme                                                   | DDT containing spectral information for cloudy RRTMGP SW radiation scheme           | DDT           |    0 | ty_cloud_optics       |           | none   | F        |
+!! | physics%rrtmgp_data_lw_gas                               | coefficients_for_lw_gas_optics                                                                    | DDT containing spectral information for RRTMGP LW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
+!! | physics%rrtmgp_data_sw_gas                               | coefficients_for_sw_gas_optics                                                                    | DDT containing spectral information for RRTMGP SW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
+!! | physics%rrtmgp_data_lw_clouds                            | coefficients_for_lw_cloud_optics                                                                  | DDT containing spectral information for cloudy RRTMGP LW radiation scheme           | DDT           |    0 | ty_cloud_optics       |           | none   | F        |
+!! | physics%rrtmgp_data_sw_clouds                            | coefficients_for_sw_cloud_optics                                                                  | DDT containing spectral information for cloudy RRTMGP SW radiation scheme           | DDT           |    0 | ty_cloud_optics       |           | none   | F        |
 !!
 #endif
 
@@ -1283,11 +1283,11 @@ module gmtb_scm_type_defs
 
     ! Needed for RRTMGP
     type(ty_gas_optics_rrtmgp) :: & !
-         kdist_lw, & !
-         kdist_sw !
+         rrtmgp_data_lw_gas, & !
+         rrtmgp_data_sw_gas !
     type(ty_cloud_optics) :: & !
-         kdist_cldy_lw, & !
-         kdist_cldy_sw !      
+         rrtmgp_data_lw_clouds, & !
+         rrtmgp_data_sw_clouds !      
     type(ty_optical_props_1scl)  ::  & !
          optical_propsLW_clds, & !
          optical_propsLW_aerosol   !
