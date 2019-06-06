@@ -1039,7 +1039,7 @@ module GFS_typedefs
          sfc_alb_uvvis_dir(:,:)   => null(), & !
          sfc_alb_uvvis_dif(:,:)   => null()    ! 
     character(len=128),pointer :: &
-         active_gases(:) => null()
+         active_gases(:,:) => null()
     contains
       procedure :: create  => radtend_create   !<   allocate array data
   end type GFS_radtend_type
@@ -3669,8 +3669,8 @@ module GFS_typedefs
     Radtend%sfc_alb_nir_dif    = clear_val
     Radtend%sfc_alb_uvvis_dir  = clear_val
     Radtend%sfc_alb_uvvis_dif  = clear_val
-    allocate(Radtend%active_gases(Model%nGases))
-    Radtend%active_gases = ''
+    allocate(Radtend%active_gases(Model%nGases,IM))
+    !Radtend%active_gases = ''
 
   end subroutine radtend_create
 
