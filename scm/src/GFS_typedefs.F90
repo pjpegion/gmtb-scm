@@ -6,11 +6,6 @@ module GFS_typedefs
        use module_radsw_parameters,   only: cmpfsw_type, sfcfsw_type, topfsw_type, NBDSW
        use ozne_def,                  only: levozp, oz_coeff, oz_pres
        use h2o_def,                   only: levh2o, h2o_coeff, h2o_pres
-       use mo_gas_optics_rrtmgp,      only: ty_gas_optics_rrtmgp
-       use mo_optical_props,          only: ty_optical_props_1scl
-       use mo_cloud_optics,           only: ty_cloud_optics
-       use mo_gas_concentrations,     only: ty_gas_concs
-       use mo_fluxes_byband,          only: ty_fluxes_byband
 
        implicit none
 
@@ -527,17 +522,20 @@ module GFS_typedefs
     logical              :: norad_precip    !< radiation precip flag for Ferrier/Moorthi
     logical              :: lwhtr           !< flag to output lw heating rate (Radtend%lwhc)
     logical              :: swhtr           !< flag to output sw heating rate (Radtend%swhc)
-    character(len=128)   :: rrtmgp_root     !< Directory of rte+rrtmgp source code
-    character(len=128)   :: lw_file_gas          !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
-    character(len=128)   :: lw_file_clouds       !< RRTMGP file containing coefficients used to compute clouds optical properties 
-    integer              :: rrtmgp_nBandsLW      !< Number of RRTMGP LW bands. 
-    character(len=128)   :: sw_file_gas          !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
-    character(len=128)   :: sw_file_clouds       !< RRTMGP file containing coefficients used to compute clouds optical properties  
-    integer              :: rrtmgp_nBandsSW      !< Number of RRTMGP SW bands. 
-    integer              :: rrtmgp_cld_optics    !< Flag to control which RRTMGP routine to compute cloud-optics.
+    character(len=128)   :: active_gases      !< Character list of active gases used in RRTMGP
+    integer              :: nGases            !< Number of active gases
+    character(len=128)   :: rrtmgp_root       !< Directory of rte+rrtmgp source code
+    character(len=128)   :: lw_file_gas       !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
+    character(len=128)   :: lw_file_clouds    !< RRTMGP file containing coefficients used to compute clouds optical properties 
+    integer              :: rrtmgp_nBandsLW   !< Number of RRTMGP LW bands. 
+    character(len=128)   :: sw_file_gas       !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
+    character(len=128)   :: sw_file_clouds    !< RRTMGP file containing coefficients used to compute clouds optical properties  
+    integer              :: rrtmgp_nBandsSW   !< Number of RRTMGP SW bands. 
+    integer              :: rrtmgp_cld_optics !< Flag to control which RRTMGP routine to compute cloud-optics.
                                                  !< = 0 ; Use RRTMG implementation
                                                  !< = 1 ; Use RRTMGP (pade)
                                                  !< = 2 ; USE RRTMGP (LUT)
+    integer              :: rrtmgp_nrghice    !< Number of ice-roughness categories
 
     !--- microphysical switch
     integer              :: ncld            !< choice of cloud scheme
@@ -1040,6 +1038,8 @@ module GFS_typedefs
          sfc_alb_nir_dif(:,:)     => null(), & !
          sfc_alb_uvvis_dir(:,:)   => null(), & !
          sfc_alb_uvvis_dif(:,:)   => null()    ! 
+    character(len=128),pointer :: &
+         active_gases(:) => null()
     contains
       procedure :: create  => radtend_create   !<   allocate array data
   end type GFS_radtend_type
@@ -2061,17 +2061,21 @@ module GFS_typedefs
     logical              :: norad_precip   = .false.         !< radiation precip flag for Ferrier/Moorthi
     logical              :: lwhtr          = .true.          !< flag to output lw heating rate (Radtend%lwhc)
     logical              :: swhtr          = .true.          !< flag to output sw heating rate (Radtend%swhc)
-    character(len=128)   :: rrtmgp_root        = ''          !< Directory of rte+rrtmgp source code
+    character(len=128)   :: active_gases    = ''             !< Character list of active gases used in RRTMGP
+    integer              :: nGases          = 0              !< Number of active gases
+    character(len=128)   :: rrtmgp_root     = ''             !< Directory of rte+rrtmgp source code
     character(len=128)   :: lw_file_gas     = ''             !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
     character(len=128)   :: lw_file_clouds  = ''             !< RRTMGP file containing coefficients used to compute clouds optical properties 
-    integer              :: rrtmgp_nBandsLW       = 16       !< Number of RRTMGP LW bands. 
+    integer              :: rrtmgp_nBandsLW = 16             !< Number of RRTMGP LW bands. 
     character(len=128)   :: sw_file_gas     = ''             !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
     character(len=128)   :: sw_file_clouds  = ''             !< RRTMGP file containing coefficients used to compute clouds optical properties 
-    integer              :: rrtmgp_nBandsSW       = 14       !< Number of RRTMGP SW bands. 
+    integer              :: rrtmgp_nBandsSW = 14             !< Number of RRTMGP SW bands. 
     integer              :: rrtmgp_cld_optics = 0            !<  Flag to control which RRTMGP routine to compute cloud-optics.
-                                                             !< = 0 ; Use RRTMGP implementation
-                                                             !< = 1 ; Use RRTMGP (pade)
-                                                             !< = 2 ; USE RRTMGP (LUT)
+                                                               !< = 0 ; Use RRTMGP implementation
+                                                               !< = 1 ; Use RRTMGP (pade)
+                                                               !< = 2 ; USE RRTMGP (LUT)
+    integer              :: rrtmgp_nrghice = 0               !< Number of ice-roughness categories
+
     !--- Z-C microphysical parameters
     integer              :: ncld           =  1                 !< choice of cloud scheme
     integer              :: imp_physics    =  99                !< choice of cloud scheme
@@ -2305,9 +2309,9 @@ module GFS_typedefs
                                fhswr, fhlwr, levr, nfxr, aero_in, iflip, isol, ico2, ialb,  &
                                isot, iems, iaer, icliq_sw, iovr_sw, iovr_lw, ictm, isubc_sw,&
                                isubc_lw, crick_proof, ccnorm, lwhtr, swhtr,                 &
-                               rrtmgp_root, lw_file_gas, lw_file_clouds,                    &
-                               rrtmgp_nBandsLW, sw_file_gas, sw_file_clouds,                &
-                               rrtmgp_nBandsSW, rrtmgp_cld_optics,                           &
+                               active_gases, nGases, rrtmgp_root, lw_file_gas,              &
+                               lw_file_clouds, rrtmgp_nBandsLW, sw_file_gas, sw_file_clouds,&
+                               rrtmgp_nBandsSW, rrtmgp_cld_optics, rrtmgp_nrghice,          &
                           ! IN CCN forcing
                                iccn,                                                        &
                           !--- microphysical parameterizations
@@ -2484,6 +2488,9 @@ module GFS_typedefs
     Model%ccnorm           = ccnorm
     Model%lwhtr            = lwhtr
     Model%swhtr            = swhtr
+    Model%rrtmgp_nrghice    = rrtmgp_nrghice
+    Model%active_gases      = active_gases
+    Model%ngases            = nGases
     Model%rrtmgp_root       = rrtmgp_root
     Model%lw_file_gas       = lw_file_gas
     Model%lw_file_clouds    = lw_file_clouds
@@ -3159,6 +3166,9 @@ module GFS_typedefs
       print *, ' norad_precip       : ', Model%norad_precip
       print *, ' lwhtr              : ', Model%lwhtr
       print *, ' swhtr              : ', Model%swhtr
+      print *, ' rrtmgp_nrghice     : ', Model%rrtmgp_nrghice
+      print *, ' active_gases       : ', Model%active_gases
+      print *, ' nGases             : ', Model%ngases
       print *, ' rrtmgp_root        : ', Model%rrtmgp_root
       print *, ' lw_file_gas        : ', Model%lw_file_gas
       print *, ' lw_file_clouds     : ', Model%lw_file_clouds
@@ -3659,6 +3669,8 @@ module GFS_typedefs
     Radtend%sfc_alb_nir_dif    = clear_val
     Radtend%sfc_alb_uvvis_dir  = clear_val
     Radtend%sfc_alb_uvvis_dif  = clear_val
+    allocate(Radtend%active_gases(Model%nGases))
+    Radtend%active_gases = ''
 
   end subroutine radtend_create
 

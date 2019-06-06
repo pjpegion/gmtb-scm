@@ -894,6 +894,7 @@ module gmtb_scm_type_defs
 !! | physics%Radtend(i)%sfc_alb_nir_dif                       | surface_shortwave_albedo_near_infrared_diffuse_in_each_band                                       | surface sw near-infrared diffuse albedo in each SW band                             | frac          |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Radtend(i)%sfc_alb_uvvis_dir                     | surface_shortwave_albedo_uv_visible_direct_in_each_band                                           | surface sw uv-visible direct albedo in each SW band                                 | frac          |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Radtend(i)%sfc_alb_uvvis_dif                     | surface_shortwave_albedo_uv_visible_diffuse_in_each_band                                          | surface sw uv-visible diffuse albedo in each SW band                                | frac          |    2 | real                  | kind_phys | none   | F        |
+!! | physics%Radtend(i)%active_gases                          | active_gases_in_RRTMGP                                                                            | Character array containing names of active gases                                    |               |    1 | character             | len=128   | none   | F        |
 !! | physics%Diag(i)%fluxr                                    |                                                                                                   | accumulated 2-d fields, opt. includes aerosols                                      |               |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%topfsw                                   | sw_fluxes_top_atmosphere                                                                          | sw radiation fluxes at toa                                                          | W m-2         |    1 | topfsw_type           |           | none   | F        |
 !! | physics%Diag(i)%topflw                                   | lw_fluxes_top_atmosphere                                                                          | lw radiation fluxes at top                                                          | W m-2         |    1 | topflw_type           |           | none   | F        |
@@ -1240,6 +1241,9 @@ module gmtb_scm_type_defs
 !! | physics%rrtmgp_data_sw_gas                               | coefficients_for_sw_gas_optics                                                                    | DDT containing spectral information for RRTMGP SW radiation scheme                  | DDT           |    0 | ty_gas_optics_rrtmgp  |           | none   | F        |
 !! | physics%rrtmgp_data_lw_clouds                            | coefficients_for_lw_cloud_optics                                                                  | DDT containing spectral information for cloudy RRTMGP LW radiation scheme           | DDT           |    0 | ty_cloud_optics       |           | none   | F        |
 !! | physics%rrtmgp_data_sw_clouds                            | coefficients_for_sw_cloud_optics                                                                  | DDT containing spectral information for cloudy RRTMGP SW radiation scheme           | DDT           |    0 | ty_cloud_optics       |           | none   | F        |
+!! | physics%rrtmgp_ipsdsw0                                   | initial_permutation_seed_sw                                                                       | initial seed for McICA SW                                                           | none          |    0 | integer               |           | none   | F        |
+!! | physics%rrtmgp_ipsdlw0                                   | initial_permutation_seed_lw                                                                       | initial seed for McICA LW                                                           | none          |    0 | integer               |           | none   | F        |
+
 !!
 #endif
 
@@ -1282,6 +1286,9 @@ module gmtb_scm_type_defs
     integer                             :: nthreads
 
     ! Needed for RRTMGP
+    integer :: &
+         rrtmgp_ipsdsw0 ,&
+         rrtmgp_ipsdlw0 
     type(ty_gas_optics_rrtmgp) :: & !
          rrtmgp_data_lw_gas, & !
          rrtmgp_data_sw_gas !
@@ -1624,11 +1631,12 @@ module gmtb_scm_type_defs
     physics%nthreads = 1
 
     ! RRTMGP
+    physics%rrtmgp_ipsdsw0 = 0
+    physics%rrtmgp_ipsdlw0 = 0
     allocate(physics%fluxlwUP_allsky(n_columns,n_levels), physics%fluxlwDOWN_allsky(n_columns,n_levels),&
              physics%fluxlwUP_clrsky(n_columns,n_levels), physics%fluxlwDOWN_clrsky(n_columns,n_levels),&
              physics%fluxswUP_allsky(n_columns,n_levels), physics%fluxswDOWN_allsky(n_columns,n_levels),&
              physics%fluxswUP_clrsky(n_columns,n_levels), physics%fluxswDOWN_clrsky(n_columns,n_levels))
-
   end subroutine physics_create
 
   subroutine physics_associate(physics, scm_state, col)
