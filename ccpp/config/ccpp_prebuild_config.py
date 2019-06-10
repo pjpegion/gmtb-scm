@@ -20,7 +20,8 @@ VARIABLE_DEFINITION_FILES = [
     'ccpp/physics/physics/rte-rrtmgp/rrtmgp/mo_gas_concentrations.F90',
     'ccpp/physics/physics/rte-rrtmgp/rte/mo_optical_props.F90',
     'ccpp/physics/physics/rte-rrtmgp/extensions/cloud_optics/mo_cloud_optics.F90',
-    'ccpp/physics/physics/rte-rrtmgp/extensions/mo_fluxes_byband.F90'
+    'ccpp/physics/physics/rte-rrtmgp/extensions/mo_fluxes_byband.F90',
+    'ccpp/physics/physics/rte-rrtmgp/rte/mo_source_functions.F90'
     ]
 
 # Add all physics scheme dependencies relative to basedir - note that the CCPP
@@ -114,8 +115,10 @@ SCHEME_FILES = {
     'ccpp/physics/physics/rrtmgp_lw_cloud_optics.F90'   : ['physics'],
     'ccpp/physics/physics/rrtmgp_sw_gas_optics.F90'     : ['physics'],
     'ccpp/physics/physics/rrtmgp_sw_cloud_optics.F90'   : ['physics'],
-    'ccpp/physics/physics/rrtmgp_lw.F90'                : ['physics'],
-    'ccpp/physics/physics/rrtmgp_sw.F90'                : ['physics'],
+    'ccpp/physics/physics/rrtmgp_lw.F90'                  : ['physics'],
+    'ccpp/physics/physics/rrtmgp_lw_clrallsky_driver.F90' : ['physics'],
+    'ccpp/physics/physics/rrtmgp_sw.F90'                  : ['physics'],
+    'ccpp/physics/physics/rrtmgp_sw_clrallsky_driver.F90' : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_gas_optics.F90'    : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_setup.F90'         : ['physics'],
     'ccpp/physics/physics/GFS_rrtmgp_pre.F90'           : ['physics'],
@@ -265,6 +268,14 @@ OPTIONAL_ARGUMENTS = {
              'sw_fluxes_toa',
              ],
          },
+    'rrtmgp_sw_clrallsky_driver' : {
+         'rrtmgp_sw_clrallsky_driver_run' : [
+             'tendency_of_air_temperature_due_to_shortwave_heating_assuming_clear_sky_on_radiation_time_step',
+             'components_of_surface_downward_shortwave_fluxes',
+             'sw_fluxes_sfc',
+             'sw_fluxes_toa',
+             ],
+         },
     'GFS_rrtmgp_sw_post' : {
          'GFS_rrtmgp_sw_post_run' : [
              'tendency_of_air_temperature_due_to_shortwave_heating_assuming_clear_sky_on_radiation_time_step',
@@ -273,6 +284,13 @@ OPTIONAL_ARGUMENTS = {
              'sw_fluxes_toa',
              ],
          },
+    'rrtmgp_lw_clrallsky_driver' : {
+         'rrtmgp_lw_clrallsky_driver_run' : [
+             'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',
+             'lw_fluxes_sfc',
+             'lw_fluxes_toa',
+             ],
+        },
     'rrtmgp_lw' : {
          'rrtmgp_lw_run' : [
              'tendency_of_air_temperature_due_to_longwave_heating_assuming_clear_sky_on_radiation_time_step',

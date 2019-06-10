@@ -13,6 +13,8 @@ module gmtb_scm_type_defs
   use mo_cloud_optics,           only: ty_cloud_optics
   use mo_gas_concentrations,     only: ty_gas_concs
   use mo_fluxes_byband,          only: ty_fluxes_byband
+  use mo_source_functions,       only: ty_source_func_lw
+
   
   implicit none
 
@@ -894,6 +896,7 @@ module gmtb_scm_type_defs
 !! | physics%Radtend(i)%sfc_alb_nir_dif                       | surface_shortwave_albedo_near_infrared_diffuse_in_each_band                                       | surface sw near-infrared diffuse albedo in each SW band                             | frac          |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Radtend(i)%sfc_alb_uvvis_dir                     | surface_shortwave_albedo_uv_visible_direct_in_each_band                                           | surface sw uv-visible direct albedo in each SW band                                 | frac          |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Radtend(i)%sfc_alb_uvvis_dif                     | surface_shortwave_albedo_uv_visible_diffuse_in_each_band                                          | surface sw uv-visible diffuse albedo in each SW band                                | frac          |    2 | real                  | kind_phys | none   | F        |
+!! | physics%Radtend(i)%toa_src                               | Incoming_solar_irradiance_by_spectral_point                                                       | top of atmosphere incident solar flux in each spectral point                        |               |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Radtend(i)%active_gases                          | active_gases_in_RRTMGP                                                                            | Character array containing names of active gases                                    |               |    2 | character             | len=128   | none   | F        |
 !! | physics%Diag(i)%fluxr                                    |                                                                                                   | accumulated 2-d fields, opt. includes aerosols                                      |               |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%topfsw                                   | sw_fluxes_top_atmosphere                                                                          | sw radiation fluxes at toa                                                          | W m-2         |    1 | topfsw_type           |           | none   | F        |
@@ -1224,8 +1227,11 @@ module gmtb_scm_type_defs
 !! | physics%hydrostatic                                      | flag_for_hydrostatic_solver                                                                       | flag for use the hydrostatic or nonhydrostatic solver                               | flag          |    0 | logical               |           | none   | F        |
 !! | physics%phys_hydrostatic                                 | flag_for_hydrostatic_heating_from_physics                                                         | flag for use of hydrostatic heating in physics                                      | flag          |    0 | logical               |           | none   | F        |
 !! | physics%nthreads                                         | omp_threads                                                                                       | number of OpenMP threads available for physics schemes                              | count         |    0 | integer               |           | none   | F        |
+!! | physics%sources_LW                                       | longwave_source_function                                                                          | Fortran DDT containing RRTMGP source functions                                      | DDT           |    0 | ty_source_func_lw     |           | none   | F        |
+!! | physics%optical_propsLW_clrsky                           | longwave_optical_properties_for_clear_sky                                                         | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_1scl |           | none   | F        |
 !! | physics%optical_propsLW_clds                             | longwave_optical_properties_for_cloudy_atmosphere                                                 | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_1scl |           | none   | F        |
 !! | physics%optical_propsLW_aerosol                          | longwave_optical_properties_for_aerosols                                                          | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_1scl |           | none   | F        |
+!! | physics%optical_propsSW_clrsky                           | shortwave_optical_properties_for_clear_sky                                                        | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_2str |           | none   | F        |
 !! | physics%optical_propsSW_clds                             | shortwave_optical_properties_for_cloudy_atmosphere                                                | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_2str |           | none   | F        |
 !! | physics%optical_propsSW_aerosol                          | shortwave_optical_properties_for_aerosols                                                         | Fortran DDT containing RRTMGP optical properties                                    | DDT           |    0 | ty_optical_props_2str |           | none   | F        |
 !! | physics%gas_concentrations                               | Gas_concentrations_for_RRTMGP_suite                                                               | DDT containing gas concentrations for RRTMGP radiation scheme                       | DDT           |    0 | ty_gas_concs          |           | none   | F        |
@@ -1296,9 +1302,11 @@ module gmtb_scm_type_defs
          rrtmgp_data_sw_clouds !      
     type(ty_optical_props_1scl)  ::  & !
          optical_propsLW_clds, & !
+         optical_propsLW_clrsky,&
          optical_propsLW_aerosol   !
     type(ty_optical_props_2str)  ::  & !
          optical_propsSW_clds, & !
+         optical_propsSW_clrsky, & !
          optical_propsSW_aerosol   !
     type(ty_gas_concs) :: & !
          gas_concentrations
@@ -1311,6 +1319,8 @@ module gmtb_scm_type_defs
          fluxswDOWN_allsky, &
          fluxswUP_clrsky,   &
          fluxswDOWN_clrsky
+    type(ty_source_func_lw) :: &
+         sources_lw
 
     contains
       procedure :: create => physics_create

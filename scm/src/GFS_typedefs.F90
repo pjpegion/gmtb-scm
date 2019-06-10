@@ -531,6 +531,7 @@ module GFS_typedefs
     character(len=128)   :: sw_file_gas       !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
     character(len=128)   :: sw_file_clouds    !< RRTMGP file containing coefficients used to compute clouds optical properties  
     integer              :: rrtmgp_nBandsSW   !< Number of RRTMGP SW bands. 
+    integer              :: rrtmgp_nGptsSW    !< Number of RRTMGP SW spectral points. 
     integer              :: rrtmgp_cld_optics !< Flag to control which RRTMGP routine to compute cloud-optics.
                                                  !< = 0 ; Use RRTMG implementation
                                                  !< = 1 ; Use RRTMGP (pade)
@@ -1037,7 +1038,8 @@ module GFS_typedefs
          sfc_alb_nir_dir(:,:)     => null(), & !
          sfc_alb_nir_dif(:,:)     => null(), & !
          sfc_alb_uvvis_dir(:,:)   => null(), & !
-         sfc_alb_uvvis_dif(:,:)   => null()    ! 
+         sfc_alb_uvvis_dif(:,:)   => null(), & !
+         toa_src(:,:)             => null()    !
     character(len=128),pointer :: &
          active_gases(:,:) => null()
     contains
@@ -2070,6 +2072,7 @@ module GFS_typedefs
     character(len=128)   :: sw_file_gas     = ''             !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
     character(len=128)   :: sw_file_clouds  = ''             !< RRTMGP file containing coefficients used to compute clouds optical properties 
     integer              :: rrtmgp_nBandsSW = 14             !< Number of RRTMGP SW bands. 
+    integer              :: rrtmgp_nGptsSW  = 224            !< Number of RRTMGP SW spectral points. 
     integer              :: rrtmgp_cld_optics = 0            !<  Flag to control which RRTMGP routine to compute cloud-optics.
                                                                !< = 0 ; Use RRTMGP implementation
                                                                !< = 1 ; Use RRTMGP (pade)
@@ -2311,7 +2314,8 @@ module GFS_typedefs
                                isubc_lw, crick_proof, ccnorm, lwhtr, swhtr,                 &
                                active_gases, nGases, rrtmgp_root, lw_file_gas,              &
                                lw_file_clouds, rrtmgp_nBandsLW, sw_file_gas, sw_file_clouds,&
-                               rrtmgp_nBandsSW, rrtmgp_cld_optics, rrtmgp_nrghice,          &
+                               rrtmgp_nBandsSW, rrtmgp_nGptsSW, rrtmgp_cld_optics,          &
+                               rrtmgp_nrghice,                                              &
                           ! IN CCN forcing
                                iccn,                                                        &
                           !--- microphysical parameterizations
@@ -2498,6 +2502,7 @@ module GFS_typedefs
     Model%sw_file_gas       = sw_file_gas
     Model%sw_file_clouds    = sw_file_clouds
     Model%rrtmgp_nBandsSW   = rrtmgp_nBandsSW
+    Model%rrtmgp_nGptsSW    = rrtmgp_nGptsSW
     Model%rrtmgp_cld_optics = rrtmgp_cld_optics
     ! The CCPP versions of the RRTMG lw/sw schemes are configured
     ! such that lw and sw heating rate are output, i.e. they rely
@@ -3176,6 +3181,7 @@ module GFS_typedefs
       print *, ' sw_file_gas        : ', Model%sw_file_gas
       print *, ' sw_file_clouds     : ', Model%sw_file_clouds
       print *, ' rrtmgp_nBandsSW    : ', Model%rrtmgp_nBandsSW
+      print *, ' rrtmgp_nGptsSW     : ', Model%rrtmgp_nGptsSW
       print *, ' rrtmgp_cld_optics  : ', Model%rrtmgp_cld_optics
       print *, ' '
       print *, 'microphysical switch'
@@ -3670,7 +3676,8 @@ module GFS_typedefs
     Radtend%sfc_alb_uvvis_dir  = clear_val
     Radtend%sfc_alb_uvvis_dif  = clear_val
     allocate(Radtend%active_gases(Model%nGases,IM))
-    !Radtend%active_gases = ''
+    allocate(Radtend%toa_src(IM,Model%rrtmgp_nGptsSW))
+    Radtend%toa_src            = clear_val
 
   end subroutine radtend_create
 
