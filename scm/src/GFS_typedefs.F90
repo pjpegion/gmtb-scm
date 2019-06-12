@@ -528,6 +528,7 @@ module GFS_typedefs
     character(len=128)   :: lw_file_gas       !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
     character(len=128)   :: lw_file_clouds    !< RRTMGP file containing coefficients used to compute clouds optical properties 
     integer              :: rrtmgp_nBandsLW   !< Number of RRTMGP LW bands. 
+    integer              :: rrtmgp_nGptsLW    !< Number of RRTMGP LW spectral points. 
     character(len=128)   :: sw_file_gas       !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
     character(len=128)   :: sw_file_clouds    !< RRTMGP file containing coefficients used to compute clouds optical properties  
     integer              :: rrtmgp_nBandsSW   !< Number of RRTMGP SW bands. 
@@ -1039,7 +1040,8 @@ module GFS_typedefs
          sfc_alb_nir_dif(:,:)     => null(), & !
          sfc_alb_uvvis_dir(:,:)   => null(), & !
          sfc_alb_uvvis_dif(:,:)   => null(), & !
-         toa_src(:,:)             => null()    !
+         toa_src_lw(:,:)          => null(), & !
+         toa_src_sw(:,:)          => null()    !
     character(len=128),pointer :: &
          active_gases(:,:) => null()
     contains
@@ -2069,6 +2071,7 @@ module GFS_typedefs
     character(len=128)   :: lw_file_gas     = ''             !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
     character(len=128)   :: lw_file_clouds  = ''             !< RRTMGP file containing coefficients used to compute clouds optical properties 
     integer              :: rrtmgp_nBandsLW = 16             !< Number of RRTMGP LW bands. 
+    integer              :: rrtmgp_nGptsLW  = 256            !< Number of RRTMGP LW spectral points. 
     character(len=128)   :: sw_file_gas     = ''             !< RRTMGP K-distribution file, coefficients to compute optics for gaseous atmosphere
     character(len=128)   :: sw_file_clouds  = ''             !< RRTMGP file containing coefficients used to compute clouds optical properties 
     integer              :: rrtmgp_nBandsSW = 14             !< Number of RRTMGP SW bands. 
@@ -2312,10 +2315,10 @@ module GFS_typedefs
                                fhswr, fhlwr, levr, nfxr, aero_in, iflip, isol, ico2, ialb,  &
                                isot, iems, iaer, icliq_sw, iovr_sw, iovr_lw, ictm, isubc_sw,&
                                isubc_lw, crick_proof, ccnorm, lwhtr, swhtr,                 &
-                               active_gases, nGases, rrtmgp_root, lw_file_gas,              &
-                               lw_file_clouds, rrtmgp_nBandsLW, sw_file_gas, sw_file_clouds,&
-                               rrtmgp_nBandsSW, rrtmgp_nGptsSW, rrtmgp_cld_optics,          &
-                               rrtmgp_nrghice,                                              &
+                               active_gases, nGases, rrtmgp_root, &
+                               lw_file_gas, lw_file_clouds, rrtmgp_nBandsLW, rrtmgp_nGptsLW,&
+                               sw_file_gas, sw_file_clouds, rrtmgp_nBandsSW, rrtmgp_nGptsSW,&
+                               rrtmgp_cld_optics, rrtmgp_nrghice,                           &
                           ! IN CCN forcing
                                iccn,                                                        &
                           !--- microphysical parameterizations
@@ -2499,6 +2502,7 @@ module GFS_typedefs
     Model%lw_file_gas       = lw_file_gas
     Model%lw_file_clouds    = lw_file_clouds
     Model%rrtmgp_nBandsLW   = rrtmgp_nBandsLW
+    Model%rrtmgp_nGptsLW    = rrtmgp_nGptsLW
     Model%sw_file_gas       = sw_file_gas
     Model%sw_file_clouds    = sw_file_clouds
     Model%rrtmgp_nBandsSW   = rrtmgp_nBandsSW
@@ -3178,6 +3182,7 @@ module GFS_typedefs
       print *, ' lw_file_gas        : ', Model%lw_file_gas
       print *, ' lw_file_clouds     : ', Model%lw_file_clouds
       print *, ' rrtmgp_nBandsLW    : ', Model%rrtmgp_nBandsLW
+      print *, ' rrtmgp_nGptsLW     : ', Model%rrtmgp_nGptsLW
       print *, ' sw_file_gas        : ', Model%sw_file_gas
       print *, ' sw_file_clouds     : ', Model%sw_file_clouds
       print *, ' rrtmgp_nBandsSW    : ', Model%rrtmgp_nBandsSW
@@ -3676,8 +3681,10 @@ module GFS_typedefs
     Radtend%sfc_alb_uvvis_dir  = clear_val
     Radtend%sfc_alb_uvvis_dif  = clear_val
     allocate(Radtend%active_gases(Model%nGases,IM))
-    allocate(Radtend%toa_src(IM,Model%rrtmgp_nGptsSW))
-    Radtend%toa_src            = clear_val
+    allocate(Radtend%toa_src_sw(IM,Model%rrtmgp_nGptsSW))
+    allocate(Radtend%toa_src_lw(IM,Model%rrtmgp_nGptsLW))
+    Radtend%toa_src_lw         = clear_val
+    Radtend%toa_src_sw         = clear_val
 
   end subroutine radtend_create
 

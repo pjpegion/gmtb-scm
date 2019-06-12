@@ -194,6 +194,7 @@ SCHEME_FILES = {
     'ccpp/physics/physics/rte-rrtmgp/rte/kernels/mo_fluxes_broadband_kernels.F90'   : ['physics'],
     'ccpp/physics/physics/rte-rrtmgp/rte/kernels/mo_optical_props_kernels.F90'      : ['physics'],
     'ccpp/physics/physics/rte-rrtmgp/rte/kernels/mo_rte_solver_kernels.F90'         : ['physics'],
+    'ccpp/physics/physics/rte-rrtmgp/extensions/mo_compute_bc.F90'                  : ['physics'],
     'ccpp/physics/physics/rte-rrtmgp/extensions/mo_fluxes_byband.F90'               : ['physics'],
     'ccpp/physics/physics/rte-rrtmgp/extensions/mo_fluxes_byband_kernels.F90'       : ['physics'],
     'ccpp/physics/physics/rte-rrtmgp/extensions/mo_fluxes_bygpoint.F90'             : ['physics'],
