@@ -4069,8 +4069,10 @@ module GFS_typedefs
     allocate (Diag%tdoms   (IM))
     allocate (Diag%skebu_wts(IM,Model%levs))
     allocate (Diag%skebv_wts(IM,Model%levs))
-    allocate (Diag%sppt_wts(IM,Model%levs))
-    allocate (Diag%shum_wts(IM,Model%levs))
+    
+!    allocate (Diag%sppt_wts(IM,Model%levs))
+!    allocate (Diag%shum_wts(IM,Model%levs))
+!    print*,'shum_wts allocated',IM,Model%levs
     !--- 3D diagnostics
     allocate (Diag%zmtnblck(IM))
 

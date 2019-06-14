@@ -276,6 +276,9 @@ subroutine GFS_suite_setup (Model, Statein, Stateout, Sfcprop,                  
   call Radtend%create(1, Model)
   !--- internal representation of diagnostics
   call Diag%create(1, Model)
+  ! pointers for output:
+  Diag%sppt_wts=>Coupling%sppt_wts
+  Diag%shum_wts=>Coupling%shum_wts
   !--- internal representation of interstitials for CCPP physics
   call Interstitial%create(1, Model)
 
