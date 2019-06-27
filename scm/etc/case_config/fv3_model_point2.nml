@@ -1,7 +1,7 @@
 $case_config
 model_name = 'FV3',
 n_columns = 1,
-case_name = 'fv3_model_point',
+case_name = 'fv3_model_point2',
 dt = 900.0,
 time_scheme = 1,
 runtime = 86400,

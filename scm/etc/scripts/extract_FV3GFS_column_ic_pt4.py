@@ -16,7 +16,7 @@ SC=0
 #  defint i,j and tile to extract colmn
 ipt=16
 jpt=41
-tilenum=2
+tilenum=3
 
 ipt2=ipt*2+1
 jpt2=jpt*2+1
@@ -126,7 +126,7 @@ for k in range(nlevs):
   temp[k] = (gz[k]-gz[k+1])/( rdgas*(pn1[k+1]-pn1[k])*(1.+zvir*sphum[k]) )
 
 # open output file
-nc = Dataset('../../data/processed_case_input/fv3_model_point5.nc', mode='w')
+nc = Dataset('../../data/processed_case_input/fv3_model_point4.nc', mode='w')
 nc.description = "FV3GFS model profile input (no forcing)"
 
 time = nc.createDimension('time',None)

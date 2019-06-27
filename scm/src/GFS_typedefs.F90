@@ -784,6 +784,7 @@ module GFS_typedefs
 
     !--- stochastic physics control parameters
     logical              :: do_sppt
+    logical              :: pert_clds
     logical              :: use_zmtnblck
     logical              :: do_shum
     logical              :: do_skeb
@@ -796,6 +797,7 @@ module GFS_typedefs
     real(kind=kind_phys) :: pertlai(5)         ! mg, sfc-perts
     real(kind=kind_phys) :: pertalb(5)         ! mg, sfc-perts
     real(kind=kind_phys) :: pertvegf(5)        ! mg, sfc-perts
+    real(kind=kind_phys) :: sppt_amp   ! pjp cloud perturbations
     !--- tracer handling
     character(len=32), pointer :: tracer_names(:) !< array of initialized tracers from dynamic core
     integer              :: ntrac           !< number of tracers
@@ -1299,7 +1301,7 @@ module GFS_typedefs
     real (kind=kind_phys), pointer      :: dqsfc1(:)        => null()  !<
     real (kind=kind_phys), pointer      :: drain(:)         => null()  !<
     real (kind=kind_phys), pointer      :: dtdt(:,:)        => null()  !<
-    real (kind=kind_phys), pointer      :: dtdtc(:,:)       => null()  !<
+    real (kind=kind_phys), pointer      :: dtdtnp(:,:)      => null()  !<
     real (kind=kind_phys), pointer      :: dtsfc1(:)        => null()  !<
     real (kind=kind_phys), pointer      :: dtzm(:)          => null()  !<
     real (kind=kind_phys), pointer      :: dt_mf(:,:)       => null()  !<
@@ -2059,6 +2061,7 @@ module GFS_typedefs
     if (Model%do_sppt) then
       allocate (Coupling%sppt_wts  (IM,Model%levs))
       Coupling%sppt_wts = clear_val
+      print*,'sppt_wts=0.0'
     endif
 
     !--- stochastic shum option
@@ -3809,6 +3812,7 @@ module GFS_typedefs
     Tbd%acvt = clear_val
 
     if (Model%do_sppt) then
+      print*,'allocating sppt stuff'
       allocate (Tbd%dtdtr     (IM,Model%levs))
       allocate (Tbd%dtotprcp  (IM))
       allocate (Tbd%dcnvprcp  (IM))
@@ -4248,11 +4252,12 @@ module GFS_typedefs
     Diag%tdomzr     = zero
     Diag%tdomip     = zero
     Diag%tdoms      = zero
-    Diag%skebu_wts  = zero
-    Diag%skebv_wts  = zero
-    Diag%sppt_wts   = zero
-    Diag%shum_wts   = zero
-    Diag%zmtnblck   = zero
+!    Diag%skebu_wts  = zero
+!    Diag%skebv_wts  = zero
+!    Diag%sppt_wts   = zero
+!    print*,'zeroing out Diag sppt_wts'
+!    Diag%shum_wts   = zero
+!    Diag%zmtnblck   = zero
     Diag%totprcpb   = zero
     Diag%cnvprcpb   = zero
     Diag%toticeb    = zero
@@ -4466,7 +4471,7 @@ module GFS_typedefs
     allocate (Interstitial%dqsfc1     (IM))
     allocate (Interstitial%drain      (IM))
     allocate (Interstitial%dtdt       (IM,Model%levs))
-    allocate (Interstitial%dtdtc      (IM,Model%levs))
+    allocate (Interstitial%dtdtnp     (IM,Model%levs))
     allocate (Interstitial%dtsfc1     (IM))
     allocate (Interstitial%dt_mf      (IM,Model%levs))
     allocate (Interstitial%dtzm       (IM))
@@ -4908,7 +4913,7 @@ module GFS_typedefs
     Interstitial%drain        = clear_val
     Interstitial%dt_mf        = clear_val
     Interstitial%dtdt         = clear_val
-    Interstitial%dtdtc        = clear_val
+    Interstitial%dtdtnp       = clear_val
     Interstitial%dtsfc1       = clear_val
     Interstitial%dtzm         = clear_val
     Interstitial%dudt         = clear_val
@@ -5171,7 +5176,7 @@ module GFS_typedefs
     write (0,*) 'sum(Interstitial%dqsfc1      ) = ', sum(Interstitial%dqsfc1      )
     write (0,*) 'sum(Interstitial%drain       ) = ', sum(Interstitial%drain       )
     write (0,*) 'sum(Interstitial%dtdt        ) = ', sum(Interstitial%dtdt        )
-    write (0,*) 'sum(Interstitial%dtdtc       ) = ', sum(Interstitial%dtdtc       )
+    write (0,*) 'sum(Interstitial%dtdtnp      ) = ', sum(Interstitial%dtdtnp      )
     write (0,*) 'sum(Interstitial%dtsfc1      ) = ', sum(Interstitial%dtsfc1      )
     write (0,*) 'sum(Interstitial%dtzm        ) = ', sum(Interstitial%dtzm        )
     write (0,*) 'sum(Interstitial%dt_mf       ) = ', sum(Interstitial%dt_mf       )
