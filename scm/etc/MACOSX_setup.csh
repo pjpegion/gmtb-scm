@@ -2,34 +2,41 @@
 
 echo "Setting environment variables for SCM-CCPP on MACOSX with clang/gfortran"
 
-setenv CC /usr/local/bin/mpicc
-setenv CXX /usr/local/bin/mpicxx
-setenv F77 /usr/local/bin/mpif77
-setenv F90 /usr/local/bin/mpif90
-setenv FC /usr/local/bin/mpif90
-setenv CPP "/usr/local/bin/mpif90 -E -x f95-cpp-input"
+setenv CC /opt/local/bin/mpicc
+setenv CXX /opt/local/bin/mpicxx
+setenv F77 /opt/local/bin/mpif77
+setenv F90 /opt/local/bin/mpif90
+setenv FC /opt/local/bin/mpif90
+setenv CPP "/opt/local/bin/mpif90 -E -x f95-cpp-input"
 
-setenv LDFLAGS "-L/usr/local/opt/zlib/lib -L/usr/local/opt/llvm/lib"
-setenv CPPFLAGS "-I/usr/local/opt/zlib/include -I/usr/local/opt/llvm/include"
-setenv CFLAGS "-I/usr/local/opt/zlib/include -I/usr/local/opt/llvm/include"
-setenv CXXFLAGS "-I/usr/local/opt/zlib/include -I/usr/local/opt/llvm/include"
-setenv FFLAGS "-I/usr/local/opt/zlib/include -I/usr/local/opt/llvm/include"
-setenv FCFLAGS " -I/usr/local/opt/zlib/include -I/usr/local/opt/llvm/include"
+#setenv LDFLAGS "-L/usr/local/opt/zlib/lib -L/opt/local/libexec/llvm-7.0//lib"
+setenv LDFLAGS "-L/opt/local/libexec/llvm-7.0//lib"
+setenv CPPFLAGS "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ -I/opt/local/libexec/llvm-7.0/include"
+setenv CFLAGS "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/-I/opt/local/libexec/llvm-7.0/include"
+setenv CXXFLAGS "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ -I/opt/local/libexec/llvm-7.0/include"
+setenv FFLAGS "-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ -I/opt/local/libexec/llvm-7.0/include"
+setenv FCFLAGS " -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ -I/opt/local/libexec/llvm-7.0/include"
 
 if (! $?PATH) then
-  setenv PATH "/usr/local/opt/llvm/bin"
+  setenv PATH " /opt/local/libexec/llvm-7.0/bin"
 else
-  setenv PATH "/usr/local/opt/llvm/bin:$PATH"
+  setenv PATH " /opt/local/libexec/llvm-7.0/bin:$PATH"
 endif
 if (! $?LD_LIBRARY_PATH) then
-  setenv LD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/usr/local/opt/llvm/lib"
+  #setenv LD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/opt/local/libexec/llvm-7.0//usr/local/opt/llvm/lib"
+  setenv LD_LIBRARY_PATH "/opt/local/libexec/llvm-7.0/lib"
 else
-  setenv LD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/usr/local/opt/llvm/lib:$LD_LIBRARY_PATH"
+  #setenv LD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/opt/local/libexec/llvm-7.0//usr/local/opt/llvm/lib:$LD_LIBRARY_PATH"
+  setenv LD_LIBRARY_PATH "/opt/local/libexec/llvm-7.0/lib:$LD_LIBRARY_PATH"
 endif
 if (! $?DYLD_LIBRARY_PATH) then
-  setenv DYLD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/usr/local/opt/llvm/lib"
+  #setenv DYLD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/opt/local/libexec/llvm-7.0//usr/local/opt/llvm/lib"
+  setenv DYLD_LIBRARY_PATH "/opt/local/libexec/llvm-7.0/lib"
 else
-  setenv DYLD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH"
+  #setenv DYLD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/opt/local/libexec/llvm-7.0//usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH"
+  setenv DYLD_LIBRARY_PATH "/opt/local/libexec/llvm-7.0/lib:$DYLD_LIBRARY_PATH"
 endif
 
-setenv NETCDF /usr/local
+setenv NETCDF /Volumes/Cluster/opt/local
+set NCEPLIBS_DIR = "/Users/ppegion/ncep_libs.2"
+setenv NCEPLIBS_DIR $NCEPLIBS_DIR

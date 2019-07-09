@@ -784,7 +784,7 @@ module GFS_typedefs
 
     !--- stochastic physics control parameters
     logical              :: do_sppt
-    logical              :: pert_clds
+    logical              :: pert_clds=.false.
     logical              :: use_zmtnblck
     logical              :: do_shum
     logical              :: do_skeb
@@ -2018,7 +2018,7 @@ module GFS_typedefs
       Coupling%psurfi_cpl  = clear_val
       Coupling%oro_cpl     = clear_val  !< pointer to sfcprop%oro
       Coupling%slmsk_cpl   = clear_val  !< pointer to sfcprop%slmsk
-    endif
+     endif
 
 !-- cellular automata
     allocate (Coupling%tconvtend (IM,Model%levs))
@@ -2061,7 +2061,6 @@ module GFS_typedefs
     if (Model%do_sppt) then
       allocate (Coupling%sppt_wts  (IM,Model%levs))
       Coupling%sppt_wts = clear_val
-      print*,'sppt_wts=0.0'
     endif
 
     !--- stochastic shum option
@@ -2262,6 +2261,7 @@ module GFS_typedefs
     real(kind=kind_phys) :: tcr             = 273.16
 !
     logical              :: effr_in         = .false.           !< flag to use effective radii of cloud species in radiation
+    logical              :: pert_clds       = .false.           !< flag to perturb cloud properties before radiation call   
     logical              :: microp_uniform  = .true.
     logical              :: do_cldliq       = .true.
     logical              :: do_cldice       = .true.
@@ -3812,7 +3812,6 @@ module GFS_typedefs
     Tbd%acvt = clear_val
 
     if (Model%do_sppt) then
-      print*,'allocating sppt stuff'
       allocate (Tbd%dtdtr     (IM,Model%levs))
       allocate (Tbd%dtotprcp  (IM))
       allocate (Tbd%dcnvprcp  (IM))
@@ -3860,7 +3859,7 @@ module GFS_typedefs
    if (Model%imfdeepcnv == 3) then
       allocate(Tbd%cactiv(IM))
       Tbd%cactiv = zero
-  end if
+   end if
 
    if (Model%lsm == Model%lsm_ruc) then
        allocate(Tbd%raincprv  (IM))
@@ -4074,9 +4073,8 @@ module GFS_typedefs
     allocate (Diag%skebu_wts(IM,Model%levs))
     allocate (Diag%skebv_wts(IM,Model%levs))
     
-!    allocate (Diag%sppt_wts(IM,Model%levs))
-!    allocate (Diag%shum_wts(IM,Model%levs))
-!    print*,'shum_wts allocated',IM,Model%levs
+    !allocate (Diag%sppt_wts(IM,Model%levs))
+    !allocate (Diag%shum_wts(IM,Model%levs))
     !--- 3D diagnostics
     allocate (Diag%zmtnblck(IM))
 
@@ -4148,7 +4146,6 @@ module GFS_typedefs
     if (Model%cplchm) call Diag%chem_init(IM,Model)
     
     call Diag%rad_zero  (Model)
-!    print *,'in diag_create, call phys_zero'
     linit = .true.
     call Diag%phys_zero (Model, linit=linit)
     linit = .false.
@@ -4255,7 +4252,6 @@ module GFS_typedefs
 !    Diag%skebu_wts  = zero
 !    Diag%skebv_wts  = zero
 !    Diag%sppt_wts   = zero
-!    print*,'zeroing out Diag sppt_wts'
 !    Diag%shum_wts   = zero
 !    Diag%zmtnblck   = zero
     Diag%totprcpb   = zero

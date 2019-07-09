@@ -110,7 +110,6 @@ subroutine set_state(scm_input, scm_reference, scm_state)
      scm_state%state_tracer(:,1,:,scm_state%cloud_water_index,1) = 0.0
    else
      do i=1, scm_state%n_cols
-        !input_T = (scm_input%input_pres/p0)**con_rocp*(scm_input%input_thetail + (con_hvap/con_cp)*scm_input%input_ql + (con_hfus/con_cp)*scm_input%input_qi)
         scm_state%state_u(i,1,:,1) = scm_input%input_u(:)
         scm_state%state_v(i,1,:,1) = scm_input%input_v(:)
         scm_state%state_T(i,1,:,1) = scm_input%input_temp(:)
@@ -120,6 +119,7 @@ subroutine set_state(scm_input, scm_reference, scm_state)
         scm_state%soil_type = scm_input%input_soiltyp
         scm_state%veg_type_real = DBLE(scm_input%input_vegtyp)
         scm_state%veg_frac_real = scm_input%input_vegfrac
+        scm_state%slopetype     = scm_input%input_slopetype
         scm_state%shdmin = scm_input%input_shdmin  
         scm_state%shdmax = scm_input%input_shdmax  
         scm_state%sfc_roughness_length_cm = scm_input%input_zorl    

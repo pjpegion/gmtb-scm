@@ -74,6 +74,7 @@ module gmtb_scm_type_defs
     real(kind=dp)                     :: veg_type_real(1)
     integer                           :: veg_frac !< 0: sea surface, 1: land surface, 2: sea-ice surface
     real(kind=dp)                     :: veg_frac_real(1)
+    real(kind=dp)                     :: slopetype(1)
     real(kind=dp)                     :: shdmin(1)
     real(kind=dp)                     :: shdmax(1)
     real(kind=dp)                     :: tg3(1)
@@ -147,7 +148,7 @@ module gmtb_scm_type_defs
     integer                           :: input_vegsrc !<
     integer                           :: input_vegtyp !<
     integer                           :: input_soiltyp !<
-    integer                           :: input_slopetyp !<
+    integer                           :: input_slopetype !<
     real(kind=dp)                     :: input_vegfrac  !<
     real(kind=dp)                     :: input_shdmin   !<
     real(kind=dp)                     :: input_shdmax   !<
@@ -197,10 +198,9 @@ module gmtb_scm_type_defs
     real(kind=dp), allocatable              :: input_v(:) !< meridional wind (m/s) (initial)
     real(kind=dp), allocatable              :: input_tke(:) !< turbulence kinetic energy (m^2/s^2) (initial)
     real(kind=dp), allocatable              :: input_ozone(:) !< ozone mass mixing ratio (kg/kg) (initial)
-    real(kind=dp), allocatable              :: input_sldpth(:) !
-    real(kind=dp), allocatable              :: input_stc(:) !
-    real(kind=dp), allocatable              :: input_smc(:) !
-    real(kind=dp), allocatable              :: input_slc(:) !
+    real(kind=dp), allocatable              :: input_stc(:) !<soil temperature (k) (initial)
+    real(kind=dp), allocatable              :: input_smc(:) !<soil moisture conteng (g/g) (initial)
+    real(kind=dp), allocatable              :: input_slc(:) !<soil liquid content (g/g) (initial)
     real(kind=dp), allocatable              :: input_lat(:) !< time-series of latitude of column center
     real(kind=dp), allocatable              :: input_lon(:) !< time-series of longitude of column center
     real(kind=dp), allocatable              :: input_pres_surf(:) !< time-series of surface pressure (Pa)
@@ -224,7 +224,7 @@ module gmtb_scm_type_defs
 
     contains
       procedure :: create  => scm_input_create
-      procedure :: create_landics  => scm_input_create_land_ics
+      procedure :: create_modelics  => scm_input_create_model_ics
 
   end type scm_input_type
 
@@ -1565,7 +1565,7 @@ module gmtb_scm_type_defs
       scm_state%v_advec_qt(n_columns, n_levels), scm_state%pres_surf(n_columns,1), scm_state%T_surf(n_columns,1), &
       scm_state%alvsf(n_columns), scm_state%alnsf(n_columns), scm_state%alvwf(n_columns), scm_state%alnwf(n_columns), &
       scm_state%facsf(n_columns), scm_state%facwf(n_columns), &
-      scm_state%hprime(n_columns,14), scm_state%stddev(n_columns), &
+      scm_state%Hprime(n_columns,14), scm_state%stddev(n_columns), &
       scm_state%u_nudge(n_columns, n_levels), scm_state%v_nudge(n_columns, n_levels), &
       scm_state%T_nudge(n_columns, n_levels), scm_state%thil_nudge(n_columns, n_levels), &
       scm_state%qt_nudge(n_columns, n_levels), scm_state%sh_flux(n_columns), scm_state%lh_flux(n_columns), &
@@ -1583,6 +1583,14 @@ module gmtb_scm_type_defs
     scm_state%v_advec_qt = real_zero
     scm_state%pres_surf = real_zero
     scm_state%T_surf = real_zero
+    scm_state%alvsf = real_zero
+    scm_state%alnsf = real_zero
+    scm_state%alvwf = real_zero
+    scm_state%alnwf = real_zero
+    scm_state%facsf = real_zero
+    scm_state%facwf = real_zero
+    scm_state%hprime = real_zero
+    scm_state%stddev = real_zero
     scm_state%u_nudge = real_zero
     scm_state%v_nudge = real_zero
     scm_state%T_nudge = real_zero
@@ -1598,17 +1606,21 @@ module gmtb_scm_type_defs
 
   end subroutine scm_state_create
 
-  subroutine scm_input_create_land_ics(scm_input, nlev)
+  subroutine scm_input_create_model_ics(scm_input, nlev_soil,nlev)
     class(scm_input_type)             :: scm_input
-    integer, intent(in)               :: nlev
+    integer, intent(in)               :: nlev,nlev_soil
 
-    scm_input%input_nsoil= nlev
-    allocate(scm_input%input_stc(nlev), scm_input%input_smc(nlev), scm_input%input_slc(nlev))
+    scm_input%input_nsoil= nlev_soil
+    allocate(scm_input%input_stc(nlev_soil), scm_input%input_smc(nlev_soil), scm_input%input_slc(nlev_soil))
+    allocate(scm_input%input_temp(nlev), scm_input%input_pres_i(nlev+1),scm_input%input_pres_l(nlev))
     scm_input%input_stc    = real_zero
     scm_input%input_smc    = real_zero
     scm_input%input_slc    = real_zero
+    scm_input%input_temp   = real_zero
+    scm_input%input_pres_i = real_zero
+    scm_input%input_pres_l = real_zero
 
-  end subroutine scm_input_create_land_ics
+  end subroutine scm_input_create_model_ics
 
   subroutine scm_input_create(scm_input, ntimes, nlev)
     class(scm_input_type)             :: scm_input
@@ -1666,8 +1678,6 @@ module gmtb_scm_type_defs
     scm_input%input_sigma        = real_zero
     scm_input%input_elvmax       = real_zero
     scm_input%input_facsf        = real_zero
-    scm_input%input_pres_i       = real_zero
-    scm_input%input_pres_l       = real_zero
     scm_input%input_sh_flux_sfc = real_zero
     scm_input%input_lh_flux_sfc = real_zero
     scm_input%input_w_ls = real_zero
@@ -1785,6 +1795,7 @@ module gmtb_scm_type_defs
     physics%Sfcprop(col)%slmsk => scm_state%sfc_type_real
     physics%Sfcprop(col)%vtype => scm_state%veg_type_real
     physics%Sfcprop(col)%vfrac => scm_state%veg_frac_real
+    physics%Sfcprop(col)%slope => scm_state%slopetype
     physics%Interstitial(col)%sigmaf = min(scm_state%veg_frac_real,0.01)
     physics%Sfcprop(col)%shdmax => scm_state%shdmax        
     physics%Sfcprop(col)%shdmin => scm_state%shdmin        
