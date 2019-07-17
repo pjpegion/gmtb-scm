@@ -29,13 +29,13 @@ else
   #setenv LD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/opt/local/libexec/llvm-7.0//usr/local/opt/llvm/lib:$LD_LIBRARY_PATH"
   setenv LD_LIBRARY_PATH "/opt/local/libexec/llvm-7.0/lib:$LD_LIBRARY_PATH"
 endif
-if (! $?DYLD_LIBRARY_PATH) then
-  #setenv DYLD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/opt/local/libexec/llvm-7.0//usr/local/opt/llvm/lib"
-  setenv DYLD_LIBRARY_PATH "/opt/local/libexec/llvm-7.0/lib"
-else
-  #setenv DYLD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/opt/local/libexec/llvm-7.0//usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH"
-  setenv DYLD_LIBRARY_PATH "/opt/local/libexec/llvm-7.0/lib:$DYLD_LIBRARY_PATH"
-endif
+#if (! $?DYLD_LIBRARY_PATH) then
+#  #setenv DYLD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/opt/local/libexec/llvm-7.0//usr/local/opt/llvm/lib"
+#  setenv DYLD_LIBRARY_PATH "/opt/local/libexec/llvm-7.0/lib"
+#else
+#  #setenv DYLD_LIBRARY_PATH "/usr/local/opt/zlib/lib:/opt/local/libexec/llvm-7.0//usr/local/opt/llvm/lib:$DYLD_LIBRARY_PATH"
+#  setenv DYLD_LIBRARY_PATH "/opt/local/libexec/llvm-7.0/lib:$DYLD_LIBRARY_PATH"
+#endif
 
 setenv NETCDF /Volumes/Cluster/opt/local
 set NCEPLIBS_DIR = "/Users/ppegion/ncep_libs.2"

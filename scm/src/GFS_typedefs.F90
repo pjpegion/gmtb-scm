@@ -140,7 +140,7 @@ module GFS_typedefs
     character(len=32), pointer :: tracer_names(:) !< tracers names to dereference tracer id
                                                   !< based on name location in array
     character(len=65) :: fn_nml                   !< namelist filename
-    character(len=256), pointer :: input_nml_file(:) !< character string containing full namelist
+    character(len=256), pointer :: input_nml_file(:) => null() !< character string containing full namelist
                                                      !< for use with internal file reads
   end type GFS_init_type
 
@@ -459,7 +459,7 @@ module GFS_typedefs
     integer              :: nthreads        !< OpenMP threads available for physics
     integer              :: nlunit          !< unit for namelist
     character(len=64)    :: fn_nml          !< namelist filename for surface data cycling
-    character(len=256), pointer :: input_nml_file(:) !< character string containing full namelist
+    character(len=256), pointer :: input_nml_file(:) => null() !< character string containing full namelist
                                                    !< for use with internal file reads
     integer              :: logunit
     real(kind=kind_phys) :: fhzero          !< hours between clearing of diagnostic buckets
