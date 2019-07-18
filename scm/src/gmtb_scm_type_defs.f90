@@ -32,7 +32,7 @@ module gmtb_scm_type_defs
     character(len=character_length)                 :: output_file !< name of output file (without the file extension)
     character(len=character_length)                 :: case_name !< name of case initialization and forcing to use (different than experiment name, which names the model run (as a control, experiment_1, etc.))
     character(len=character_length), allocatable    :: physics_suite_name(:) !< name of physics suite (must be "GFS_operational" for prototype)
-    character(len=65), allocatable                  :: physics_nml(:)
+    character(len=64), allocatable                  :: physics_nml(:)
 
     integer                           :: n_levels !< number of model levels (must be 64 for prototype)
     integer                           :: n_nsoil  !< number of model levels (must be 4 for prototype)
@@ -198,9 +198,9 @@ module gmtb_scm_type_defs
     real(kind=dp), allocatable              :: input_v(:) !< meridional wind (m/s) (initial)
     real(kind=dp), allocatable              :: input_tke(:) !< turbulence kinetic energy (m^2/s^2) (initial)
     real(kind=dp), allocatable              :: input_ozone(:) !< ozone mass mixing ratio (kg/kg) (initial)
-    real(kind=dp), allocatable              :: input_stc(:) !<soil temperature (k) (initial)
-    real(kind=dp), allocatable              :: input_smc(:) !<soil moisture conteng (g/g) (initial)
-    real(kind=dp), allocatable              :: input_slc(:) !<soil liquid content (g/g) (initial)
+    real(kind=dp), allocatable              :: input_stc(:) !< soil temperature (k) (initial)
+    real(kind=dp), allocatable              :: input_smc(:) !< soil moisture conteng (g/g) (initial)
+    real(kind=dp), allocatable              :: input_slc(:) !< soil liquid content (g/g) (initial)
     real(kind=dp), allocatable              :: input_lat(:) !< time-series of latitude of column center
     real(kind=dp), allocatable              :: input_lon(:) !< time-series of longitude of column center
     real(kind=dp), allocatable              :: input_pres_surf(:) !< time-series of surface pressure (Pa)
