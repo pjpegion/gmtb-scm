@@ -109,5 +109,5 @@
        SPPT_LOGIT=.TRUE.,
        USE_ZMTNBLCK=.TRUE.,
        SPPT_SFCLIMIT=.TRUE.,
-       ISEED_SPPT=20,
+       ISEED_SPPT=17,
 /

@@ -5,7 +5,7 @@ module GFS_typedefs
        use machine,                   only: kind_phys
        ! Radiation-specific types and parameters
        use module_radlw_parameters,   only: sfcflw_type, topflw_type, NBDLW
-       use module_radsw_parameters,   only: cmpfsw_type, sfcfsw_type, topfsw_type, NBDSW
+       use module_radsw_parameters,   only: cmpfsw_type, sfcfsw_type, topfsw_type, NBDSW,profsw_type
        
        implicit none
 
@@ -52,6 +52,7 @@ module GFS_typedefs
 !! | sfcfsw_type                     | sfcfsw_type                                              | definition of type sfcfsw_type                          | DDT           |    0 | sfcfsw_type           |           | none   | F        |
 !! | topflw_type                     | topflw_type                                              | definition of type topflw_type                          | DDT           |    0 | topflw_type           |           | none   | F        |
 !! | topfsw_type                     | topfsw_type                                              | definition of type topfsw_type                          | DDT           |    0 | topfsw_type           |           | none   | F        |
+!! | profsw_type                     | profsw_type                                              | definition of type profsw_type                          | DDT           |    0 | topfsw_type           |           | none   | F        |
 !! | LTP                             | extra_top_layer                                          | extra top layer for radiation                           | none          |    0 | integer               |           | none   | F        |
 !!
 #endif
@@ -1091,6 +1092,11 @@ module GFS_typedefs
     type (topflw_type),    pointer :: topflw(:)      => null()   !< lw radiation fluxes at top, component:
                                                !        %upfxc    - total sky upward lw flux at toa (w/m**2)
                                                !        %upfx0    - clear sky upward lw flux at toa (w/m**2)
+    type (profsw_type),    pointer :: flxprf(:,:)     => null()   !< sw radiation fluxes at model levels
+                                               !        %upfxc    - total sky upward lw flux  (w/m**2)
+                                               !        %dnfxc    - total sky downward lw flux  (w/m**2)
+                                               !        %upfx0    - clear sky upward lw flux  (w/m**2)
+                                               !        %dnfx0    - clear sky downward lw flux  (w/m**2)
 
     ! Input/output - used by physics
     real (kind=kind_phys), pointer :: srunoff(:)     => null()   !< surface water runoff (from lsm)
@@ -1203,6 +1209,7 @@ module GFS_typedefs
     real (kind=kind_phys), pointer :: dv3dt (:,:,:)  => null()   !< v momentum change due to physics
     real (kind=kind_phys), pointer :: dt3dt (:,:,:)  => null()   !< temperature change due to physics
     real (kind=kind_phys), pointer :: dq3dt (:,:,:)  => null()   !< moisture change due to physics
+    real (kind=kind_phys), pointer :: dqc3dt (:,:,:) => null()   !< cloud condensate change due to physics
     real (kind=kind_phys), pointer :: refdmax (:)    => null()   !< max hourly 1-km agl reflectivity
     real (kind=kind_phys), pointer :: refdmax263k (:)=> null()   !< max hourly -10C reflectivity
     real (kind=kind_phys), pointer :: t02max (:)     => null()   !< max hourly 2m T
@@ -1447,6 +1454,7 @@ module GFS_typedefs
     real (kind=kind_phys)               :: rhctop                      !<
     real (kind=kind_phys), pointer      :: runoff(:)        => null()  !<
     real (kind=kind_phys), pointer      :: save_q(:,:,:)    => null()  !<
+    real (kind=kind_phys), pointer      :: save_qc(:,:)     => null()  !<
     real (kind=kind_phys), pointer      :: save_t(:,:)      => null()  !<
     real (kind=kind_phys), pointer      :: save_u(:,:)      => null()  !<
     real (kind=kind_phys), pointer      :: save_v(:,:)      => null()  !<
@@ -2067,6 +2075,7 @@ module GFS_typedefs
     if (Model%do_shum) then
       allocate (Coupling%shum_wts  (IM,Model%levs))
       Coupling%shum_wts = clear_val
+      print*,'in allocate',size(Coupling%shum_wts  (:,1)),size(Coupling%shum_wts  (1,:))
     endif
 
     !--- stochastic skeb option
@@ -3991,6 +4000,7 @@ module GFS_typedefs
     allocate (Diag%fluxr   (IM,Model%nfxr))
     allocate (Diag%topfsw  (IM))
     allocate (Diag%topflw  (IM))
+    allocate (Diag%flxprf  (IM,Model%levs+1))
     !--- Physics
     !--- In/Out
     allocate (Diag%srunoff (IM))
@@ -4095,6 +4105,7 @@ module GFS_typedefs
     !   write(0,*) "DH WARNING: TEMPORARY ALLOCATE Diag%dq3dt with size (IM,Model%levs,9) to avoid crash on MacOSX/GNU (and others?) in PROD mode"
     !end if
     allocate (Diag%dq3dt  (IM,Model%levs,9))
+    allocate (Diag%dqc3dt  (IM,Model%levs,4))
     ! *DH
 !      allocate (Diag%dq3dt  (IM,Model%levs,oz_coeff+5))
 !--- needed to allocate GoCart coupling fields
@@ -4165,6 +4176,10 @@ module GFS_typedefs
     Diag%topfsw%upfx0 = zero
     Diag%topflw%upfxc = zero
     Diag%topflw%upfx0 = zero
+    Diag%flxprf%upfxc = zero
+    Diag%flxprf%dnfxc = zero
+    Diag%flxprf%upfx0 = zero
+    Diag%flxprf%dnfx0 = zero
     if (Model%ldiag3d) then
       Diag%cldcov     = zero
     endif
@@ -4265,13 +4280,14 @@ module GFS_typedefs
     Diag%ca_shal    = zero
     Diag%ca_rad     = zero
     Diag%ca_micro   = zero
-!    if(Model%me == Model%master) print *,'in diag_phys_zero, totprcpb set to 0,kdt=',Model%kdt
+    if(Model%me == Model%master) print *,'in diag_phys_zero, totprcpb set to 0,kdt=',Model%kdt
 
     if (Model%ldiag3d) then
       Diag%du3dt   = zero
       Diag%dv3dt   = zero
       Diag%dt3dt   = zero
       Diag%dq3dt   = zero
+      Diag%dqc3dt  = zero
       Diag%upd_mf  = zero
       Diag%dwn_mf  = zero
       Diag%det_mf  = zero
@@ -4569,6 +4585,7 @@ module GFS_typedefs
     allocate (Interstitial%rhc        (IM,Model%levs))
     allocate (Interstitial%runoff     (IM))
     allocate (Interstitial%save_q     (IM,Model%levs,Model%ntrac))
+    allocate (Interstitial%save_qc    (IM,Model%levs))
     allocate (Interstitial%save_t     (IM,Model%levs))
     allocate (Interstitial%save_u     (IM,Model%levs))
     allocate (Interstitial%save_v     (IM,Model%levs))
@@ -5001,6 +5018,7 @@ module GFS_typedefs
     Interstitial%rhctop       = clear_val
     Interstitial%runoff       = clear_val
     Interstitial%save_q       = clear_val
+    Interstitial%save_qc      = clear_val
     Interstitial%save_t       = clear_val
     Interstitial%save_u       = clear_val
     Interstitial%save_v       = clear_val
@@ -5281,6 +5299,7 @@ module GFS_typedefs
     write (0,*) 'Interstitial%rhctop            = ', Interstitial%rhctop
     write (0,*) 'sum(Interstitial%runoff      ) = ', sum(Interstitial%runoff      )
     write (0,*) 'sum(Interstitial%save_q      ) = ', sum(Interstitial%save_q      )
+    write (0,*) 'sum(Interstitial%save_qc     ) = ', sum(Interstitial%save_qc     )
     write (0,*) 'sum(Interstitial%save_t      ) = ', sum(Interstitial%save_t      )
     write (0,*) 'sum(Interstitial%save_u      ) = ', sum(Interstitial%save_u      )
     write (0,*) 'sum(Interstitial%save_v      ) = ', sum(Interstitial%save_v      )

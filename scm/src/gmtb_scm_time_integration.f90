@@ -66,6 +66,10 @@ subroutine do_time_step(scm_state, cdata)
     case(2)
       call apply_forcing_leapfrog(scm_state)
     case default
+      scm_state%state_T(:,1,:,1) = scm_state%state_T(:,1,:,2)
+      scm_state%state_tracer(:,1,:,:,1) = scm_state%state_tracer(:,1,:,:,2)
+      scm_state%state_u(:,1,:,1) = scm_state%state_u(:,1,:,2)
+      scm_state%state_v(:,1,:,1) = scm_state%state_v(:,1,:,2)
       call apply_forcing_forward_Euler(scm_state)
   end select
 
@@ -84,6 +88,13 @@ subroutine do_time_step(scm_state, cdata)
         stop
     end if
   end do
+  select case(scm_state%time_scheme)
+    case(1)
+       scm_state%state_T(:,1,:,1) = scm_state%state_T(:,1,:,2)
+       scm_state%state_tracer(:,1,:,:,1) = scm_state%state_tracer(:,1,:,:,2)
+       scm_state%state_u(:,1,:,1) = scm_state%state_u(:,1,:,2)
+       scm_state%state_v(:,1,:,1) = scm_state%state_v(:,1,:,2)
+  end select
 
 
   !if no physics call, need to transfer state_variables(:,:,1) to state_variables (:,:,2)

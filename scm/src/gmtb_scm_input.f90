@@ -133,7 +133,8 @@ subroutine get_config_nml(scm_state)
 
   select case(time_scheme)
     case(1)
-      n_time_levels = 1
+      !n_time_levels = 1
+      n_time_levels = 2
     case(2)
       n_time_levels = 2
     case default
@@ -155,6 +156,7 @@ subroutine get_config_nml(scm_state)
 
   scm_state%n_cols = n_columns
   scm_state%n_levels = n_levels
+  scm_state%n_soil   = n_soil  
   scm_state%n_time_levels = n_time_levels
   scm_state%dt = dt
   scm_state%runtime = runtime

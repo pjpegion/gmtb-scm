@@ -177,7 +177,7 @@ subroutine gmtb_scm_main_sub()
      if (.not. scm_state%model_ics) call calc_pres_exner_geopotential(1, scm_state)
 
      !pass in state variables to be modified by forcing and physics
-     call do_time_step(scm_state, cdata)
+       call do_time_step(scm_state, cdata)
 
   else if (scm_state%time_scheme == 2) then
   !   !if using the leapfrog scheme, we initialize by taking one half forward time step and one half (unfiltered) leapfrog time step to get to the end of the first time step
@@ -240,7 +240,7 @@ subroutine gmtb_scm_main_sub()
   end if
 
   scm_state%itt_out = scm_state%itt_out + 1
-  call output_append(scm_state, physics)
+  call output_append(scm_state, physics)! move to after time-step intergration
 
   !prepare for time loop
   scm_state%n_timesteps = ceiling(scm_state%runtime/scm_state%dt)
@@ -300,7 +300,6 @@ subroutine gmtb_scm_main_sub()
       write(*,*) "itt = ",scm_state%itt
       write(*,*) "model time (s) = ",scm_state%model_time
       write(*,*) "calling output routine..."
-
       call output_append(scm_state, physics)
 
     end if

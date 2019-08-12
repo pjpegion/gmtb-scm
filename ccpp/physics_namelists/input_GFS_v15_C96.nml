@@ -1,5 +1,5 @@
 &gfs_physics_nml
-       fhzero         = 6.
+       fhzero         = 0.25
        ldiag3d        = .true.
        fhcyc          = 24.
        nst_anl        = .true.

@@ -105,4 +105,5 @@
 &nam_stochy
        shum       = 0.006
        shum_tau = 2.16E4
+       ISEED_SHUM=1020,
 /

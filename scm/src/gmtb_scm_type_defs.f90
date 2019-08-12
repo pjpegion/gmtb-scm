@@ -35,7 +35,7 @@ module gmtb_scm_type_defs
     character(len=64), allocatable                  :: physics_nml(:)
 
     integer                           :: n_levels !< number of model levels (must be 64 for prototype)
-    integer                           :: n_nsoil  !< number of model levels (must be 4 for prototype)
+    integer                           :: n_soil  !< number of model levels (must be 4 for prototype)
     integer                           :: itt !< current model iteration
     integer                           :: itt_out  !< output iteration counter
     integer                           :: time_scheme !< 1=> forward Euler, 2=> filtered leapfrog
@@ -336,7 +336,7 @@ module gmtb_scm_type_defs
 !! | physics%Interstitial(i)%dqdt(:,:,physics%Model(i)%ntinc) | tendency_of_ice_number_concentration_due_to_model_physics                                         | number concentration of ice tendency due to model physics                           | kg-1 s-1      |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%dqdt(:,:,physics%Model(i)%ntwa)  | tendency_of_water_friendly_aerosol_number_concentration_due_to_model_physics                      | number concentration of water-friendly aerosols tendency due to model physics       | kg-1 s-1      |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%dqdt(:,:,physics%Model(i)%ntia)  | tendency_of_ice_friendly_aerosol_number_concentration_due_to_model_physics                        | number concentration of ice-friendly aerosols tendency due to model physics         | kg-1 s-1      |    2 | real                  | kind_phys | none   | F        |
-!! | physics%Interstitial(i)%dqdt(:,:,physics%Model(i)%ntrw)  | tendency_of_rain_water_mixing_ratio_due_to_model_physics                                          | moist (dry+vapor, no condensates) mixing ratio of rain water tendency due to model physics | kg kg-1 s-1   |    2 | real           | kind_phys | none   | F        |
+!! | physics%Interstitial(i)%dqdt(:,:,physics%Model(i)%ntrw)  | tendency_of_rain_water_mixing_ratio_due_to_model_physics                                          | moist (dry+vapor, no condensatesa mixing ratio of rain water tendency due to model physics | kg kg-1 s-1   |    2 | real           | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%dqdt(:,:,physics%Model(i)%ntsw)  | tendency_of_snow_water_mixing_ratio_due_to_model_physics                                          | moist (dry+vapor, no condensates) mixing ratio of snow water tendency due to model physics | kg kg-1 s-1   |    2 | real           | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%dqdt(:,:,physics%Model(i)%ntgl)  | tendency_of_graupel_mixing_ratio_due_to_model_physics                                             | moist (dry+vapor, no condensates) mixing ratio of graupel tendency due to model physics    | kg kg-1 s-1   |    2 | real           | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%dqdt(:,:,physics%Model(i)%ntke)  | tendency_of_turbulent_kinetic_energy_due_to_model_physics                                         | turbulent kinetic energy tendency due to model physics                              | J s-1         |    2 | real                  | kind_phys | none   | F        |
@@ -508,6 +508,7 @@ module gmtb_scm_type_defs
 !! | physics%Interstitial(i)%save_q(:,:,scm_state%cloud_ice_index)   | ice_water_mixing_ratio_save                                                                | cloud ice water mixing ratio before entering a physics scheme                       | kg kg-1       |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%save_q(:,:,scm_state%water_vapor_index) | water_vapor_specific_humidity_save                                                         | water vapor specific humidity before entering a physics scheme                      | kg kg-1       |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%save_q                           | tracer_concentration_save                                                                         | tracer concentration before entering a physics scheme                               | kg kg-1       |    3 | real                  | kind_phys | none   | F        |
+!! | physics%Interstitial(i)%save_qc                          | cloud_condensate_save                                                                             | total cloud condensate concentration before entering a physics scheme               | kg kg-1       |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%save_t                           | air_temperature_save                                                                              | air temperature before entering a physics scheme                                    | K             |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%save_u                           | x_wind_save                                                                                       | x-wind before entering a physics scheme                                             | m s-1         |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Interstitial(i)%save_v                           | y_wind_save                                                                                       | y-wind before entering a physics scheme                                             | m s-1         |    2 | real                  | kind_phys | none   | F        |
@@ -1054,6 +1055,7 @@ module gmtb_scm_type_defs
 !! | physics%Diag(i)%fluxr                                    |                                                                                                   | accumulated 2-d fields, opt. includes aerosols                                      |               |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%topfsw                                   | sw_fluxes_top_atmosphere                                                                          | sw radiation fluxes at toa                                                          | W m-2         |    1 | topfsw_type           |           | none   | F        |
 !! | physics%Diag(i)%topflw                                   | lw_fluxes_top_atmosphere                                                                          | lw radiation fluxes at top                                                          | W m-2         |    1 | topflw_type           |           | none   | F        |
+!! | physics%Diag(i)%flxprf                                   | sw_fluxes                                                                                         | sw fluxes total sky / csk and up / down at levels                                   | W m-2         |    2 | profsw_type           |           | none   | F        |
 !! | physics%Diag(i)%srunoff                                  | surface_runoff                                                                                    | surface water runoff (from lsm)                                                     | kg m-2        |    1 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%evbsa                                    | cumulative_soil_upward_latent_heat_flux_multiplied_by_timestep                                    | cumulative soil upward latent heat flux multiplied by timestep                      | W m-2 s       |    1 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%evcwa                                    | cumulative_canopy_upward_latent_heat_flu_multiplied_by_timestep                                   | cumulative canopy upward latent heat flux multiplied by timestep                    | W m-2 s       |    1 | real                  | kind_phys | none   | F        |
@@ -1166,6 +1168,11 @@ module gmtb_scm_type_defs
 !! | physics%Diag(i)%dq3dt(:,:,7)                             | cumulative_change_in_ozone_concentration_due_to_ozone_mixing_ratio                                | cumulative change in ozone concentration due to ozone mixing ratio                  | kg kg-1       |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%dq3dt(:,:,8)                             | cumulative_change_in_ozone_concentration_due_to_temperature                                       | cumulative change in ozone concentration due to temperature                         | kg kg-1       |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%dq3dt(:,:,9)                             | cumulative_change_in_ozone_concentration_due_to_overhead_ozone_column                             | cumulative change in ozone concentration due to overhead ozone column               | kg kg-1       |    2 | real                  | kind_phys | none   | F        |
+!! | physics%Diag(i)%dqc3dt                                   | cumulative_change_in_cloud_condensate_due_to_physics                                              | cumulative change in cloud_condensate due to physics                               | kg kg-1        |    3 | real                  | kind_phys | none   | F        |
+!! | physics%Diag(i)%dqc3dt(:,:,1)                            | cumulative_change_in_cloud_condensate_due_to_PBL                                                  | cumulative change in cloud_condensate due to PBL                                   | kg kg-1        |    2 | real                  | kind_phys | none   | F        |
+!! | physics%Diag(i)%dqc3dt(:,:,2)                            | cumulative_change_in_cloud_condensate_due_to_deep_convection                                      | cumulative change in cloud_condensate due to deep conv.                            | kg kg-1        |    2 | real                  | kind_phys | none   | F        |
+!! | physics%Diag(i)%dqc3dt(:,:,3)                            | cumulative_change_in_cloud_condensate_due_to_shal_convection                                      | cumulative change in cloud_condensate due to shal conv.                            | kg kg-1        |    2 | real                  | kind_phys | none   | F        |
+!! | physics%Diag(i)%dqc3dt(:,:,4)                            | cumulative_change_in_cloud_condensate_due_to_microphysics                                         | cumulative change in cloud condensate due to microphysics                           | kg kg-1       |    2 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%refdmax                                  | maximum_reflectivity_at_1km_agl_over_maximum_hourly_time_interval                                 | maximum reflectivity at 1km agl over maximum hourly time interval                   | dBZ           |    1 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%refdmax263k                              | maximum_reflectivity_at_minus10c_over_maximum_hourly_time_interval                                | maximum reflectivity at minus10c over maximum hourly time interval                  | dBZ           |    1 | real                  | kind_phys | none   | F        |
 !! | physics%Diag(i)%t02max                                   | maximum_temperature_at_2m_over_maximum_hourly_time_interval                                       | maximum temperature at 2m over maximum hourly time interval                         | K             |    1 | real                  | kind_phys | none   | F        |
@@ -1422,9 +1429,9 @@ module gmtb_scm_type_defs
 
   contains
 
-  subroutine scm_state_create(scm_state, n_columns, n_levels, n_nsoil, n_time_levels)
+  subroutine scm_state_create(scm_state, n_columns, n_levels, n_soil, n_time_levels)
     class(scm_state_type)             :: scm_state
-    integer, intent(in)               :: n_columns, n_levels, n_nsoil, n_time_levels
+    integer, intent(in)               :: n_columns, n_levels, n_soil, n_time_levels
 
     scm_state%experiment_name = clear_char
     scm_state%model_name = clear_char
@@ -1551,9 +1558,10 @@ module gmtb_scm_type_defs
     allocate(scm_state%temp_tracer(n_columns, 1, n_levels, scm_state%n_tracers, n_time_levels), &
       scm_state%temp_T(n_columns, 1, n_levels, n_time_levels), &
       scm_state%temp_u(n_columns, 1, n_levels, n_time_levels), scm_state%temp_v(n_columns, 1, n_levels, n_time_levels))
-    allocate(scm_state%stc(n_columns, 1, n_nsoil, n_time_levels))
-    allocate(scm_state%smc(n_columns, 1, n_nsoil, n_time_levels))
-    allocate(scm_state%slc(n_columns, 1, n_nsoil, n_time_levels))
+    print*,'in typedefs',n_soil
+    allocate(scm_state%stc(n_columns, 1, n_soil, n_time_levels))
+    allocate(scm_state%smc(n_columns, 1, n_soil, n_time_levels))
+    allocate(scm_state%slc(n_columns, 1, n_soil, n_time_levels))
     scm_state%temp_tracer = real_zero
     scm_state%temp_T = real_zero
     scm_state%temp_u = real_zero
@@ -1773,7 +1781,7 @@ module gmtb_scm_type_defs
 
   subroutine physics_associate(physics, scm_state, col)
     class(physics_type) :: physics
-    type(scm_state_type), target, intent(in) :: scm_state
+    type(scm_state_type), target, intent(inout) :: scm_state
     integer, intent(in) :: col
 
     physics%Statein(col)%phii => scm_state%geopotential_i(col,:,:)
@@ -1828,17 +1836,21 @@ module gmtb_scm_type_defs
     end if
     !GJF
 
-    if(scm_state%time_scheme == 2) then
+    !if(scm_state%time_scheme == 2) then
+      scm_state%state_u(col,:,:,2) = scm_state%state_u(col,:,:,1)
+      scm_state%state_v(col,:,:,2) = scm_state%state_v(col,:,:,1)
+      scm_state%state_T(col,:,:,2) = scm_state%state_T(col,:,:,1)
+      scm_state%state_tracer(col,:,:,:,2)= scm_state%state_tracer(col,:,:,:,1)
       physics%Stateout(col)%gu0 => scm_state%state_u(col,:,:,2)
       physics%Stateout(col)%gv0 => scm_state%state_v(col,:,:,2)
       physics%Stateout(col)%gt0 => scm_state%state_T(col,:,:,2)
       physics%Stateout(col)%gq0 => scm_state%state_tracer(col,:,:,:,2)
-    else
-      physics%Stateout(col)%gu0 => scm_state%state_u(col,:,:,1)
-      physics%Stateout(col)%gv0 => scm_state%state_v(col,:,:,1)
-      physics%Stateout(col)%gt0 => scm_state%state_T(col,:,:,1)
-      physics%Stateout(col)%gq0 => scm_state%state_tracer(col,:,:,:,1)
-    endif
+    !else
+    !  physics%Stateout(col)%gu0 => scm_state%state_u(col,:,:,1)
+    !  physics%Stateout(col)%gv0 => scm_state%state_v(col,:,:,1)
+    !  physics%Stateout(col)%gt0 => scm_state%state_T(col,:,:,1)
+    !  physics%Stateout(col)%gq0 => scm_state%state_tracer(col,:,:,:,1)
+    !endif
 
     if(scm_state%sfc_flux_spec) then
       physics%Sfcprop(col)%spec_sh_flux => scm_state%sh_flux
