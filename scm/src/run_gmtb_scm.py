@@ -33,6 +33,15 @@ PHYSICS_SUITE_DIR = '../../ccpp/suites'
 # Default suite to use if none is specified
 DEFAULT_SUITE = 'SCM_GFS_v15'
 
+# Path to physics data files
+PHYSICS_DATA_DIR = '../data/physics_input_data'
+
+# Path to analysis script
+SCM_ANALYSIS_SCRIPT_DIR = '../etc/scripts'
+
+# Path to analysis script configuration files
+SCM_ANALYSIS_CONFIG_DIR = '../etc/scripts/plot_configs'
+
 # Default settings and filenames of input data for ozone physics;
 # these must match the default settings in GFS_typedefs.F90.
 DEFAULT_OZ_PHYS      = True
@@ -268,6 +277,15 @@ class Experiment(object):
         cmd = "ln -sf {0} {1}".format(os.path.join(PHYSICS_SUITE_DIR, physics_suite), physics_suite)
         execute(cmd)
         
+        # Link physics data needed for schemes to run directory
+        logging.info('Linking physics input data from {0} into run directory'.format(PHYSICS_DATA_DIR))
+        for entry in os.listdir(PHYSICS_DATA_DIR):
+            if os.path.isfile(os.path.join(PHYSICS_DATA_DIR, entry)):
+                if not os.path.exists(entry):
+                    logging.debug('Linking file {0}'.format(entry))
+                    cmd = 'ln -sf {0} {1}'.format(os.path.join(PHYSICS_DATA_DIR, entry), entry)
+                    execute(cmd)
+        
         # Parse physics namelist and extract
         # - oz_phys
         # - oz_phys_2015
@@ -300,7 +318,26 @@ class Experiment(object):
             logging.info('Linking input data for oz_phys_2015')
             cmd = 'ln -sf {0} {1}'.format(OZ_PHYS_2015_TARGET, OZ_PHYS_LINK)
             execute(cmd)
-
+        
+        # Link scripts needed to run SCM analysis
+        logging.info('Linking analysis scripts from {0} into run directory'.format(SCM_ANALYSIS_SCRIPT_DIR))
+        analysis_script_files = ['gmtb_scm_analysis.py','configspec.ini']
+        for entry in analysis_script_files:
+            if os.path.isfile(os.path.join(SCM_ANALYSIS_SCRIPT_DIR, entry)):
+                if not os.path.exists(entry):
+                    logging.debug('Linking file {0}'.format(entry))
+                    cmd = 'ln -sf {0} {1}'.format(os.path.join(SCM_ANALYSIS_SCRIPT_DIR, entry), entry)
+                    execute(cmd)
+        
+        # Link plot configuration files needed to run SCM analysis
+        logging.info('Linking plot configuration files from {0} into run directory'.format(SCM_ANALYSIS_CONFIG_DIR))
+        for entry in os.listdir(SCM_ANALYSIS_CONFIG_DIR):
+            if os.path.isfile(os.path.join(SCM_ANALYSIS_CONFIG_DIR, entry)):
+                if not os.path.exists(entry):
+                    logging.debug('Linking file {0}'.format(entry))
+                    cmd = 'ln -sf {0} {1}'.format(os.path.join(SCM_ANALYSIS_CONFIG_DIR, entry), entry)
+                    execute(cmd)
+        
         # Create output directory (delete existing directory)
         logging.info('Creating output directory {0} in run directory'.format(output_dir))
         if os.path.isdir(output_dir):
@@ -320,7 +357,7 @@ def launch_executable(use_gdb, gdb):
         cmd = '{executable}'.format(executable=EXECUTABLE)
     logging.info('Passing control to "{0}"'.format(cmd))
     time.sleep(2)
-    os.system(cmd)
+    sys.exit(os.system(cmd))
 
 def main():
     (case, use_gdb, suite, namelist) = parse_arguments()

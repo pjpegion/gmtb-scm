@@ -104,12 +104,20 @@ The \execout{case\_config} namelist expects the following parameters:
 	\begin{itemize}
 	\item A list of floating point values representing the characteristic horizontal domain area of each atmospheric column in square meters (this could be analogous to a 3D model's horizontal grid size or the characteristic horizontal scale of an observation array; these values are used in scale-aware schemes; if using multiple columns, you may specify an equal number of column areas)
 	\end{itemize}
+\item \execout{model\_ics}
+	\begin{itemize}
+	\item A boolean set to \exec{.true.} if UFS atmosphere initial conditions are used rather than field campaign-based initial conditions
+	\end{itemize}
+\item \execout{C\_RES}
+	\begin{itemize}
+	\item An integer representing the grid size of the UFS atmosphere initial conditions; the integer represents the number of grid points in each horizontal direction of each cube tile
+	\end{itemize}
 \end{itemize}
 
 \subsection{Case input data file}
 \label{subsection: case input}
 
-The initialization and forcing data for each case is stored in a netCDF (version 4) file within the \execout{gmtb-scm/scm/data/processed\_case\_input} directory. Each file has two dimensions (\execout{time} and \execout{levels}) and is organized into 3 groups: scalars, initial, and forcing. Not all fields are required for all cases. For example the fields \execout{sh\_flux\_sfc} and \execout{lh\_flux\_sfc} are only needed if the variable \execout{sfc\_flx\_spec} $=$ \exec{.true.} in the case configuration file and state nudging variables are only required if \execout{thermo\_forcing\_type} $=$ \exec{3} or \execout{mom\_forcing\_type} $=$ \exec{3}.
+The initialization and forcing data for each case is stored in a netCDF (version 4) file within the \execout{gmtb-scm/scm/data/processed\_case\_input} directory. Each file has two dimensions (\execout{time} and \execout{levels}) and is organized into 3 groups: scalars, initial, and forcing. Not all fields are required for all cases. For example the fields \execout{sh\_flux\_sfc} and \execout{lh\_flux\_sfc} are only needed if the variable \execout{sfc\_flx\_spec} $=$ \exec{.true.} in the case configuration file and state nudging variables are only required if \execout{thermo\_forcing\_type} $=$ \exec{3} or \execout{mom\_forcing\_type} $=$ \exec{3}. Using an active LSM (Noah, NoahMP, RUC) requires many more variables than are listed here. Example files for using with Noah and NoahMP LSMs are included in \execout{gmtb-scm/scm/data/processed\_case\_input/fv3\_model\_point\_noah[mp].nc}.
 
 \lstinputlisting[
                  basicstyle=\scriptsize\ttfamily,
@@ -117,9 +125,25 @@ The initialization and forcing data for each case is stored in a netCDF (version
                  caption=example netCDF file header for case initialization and forcing data
                  ]{./arm_case_header.txt}
 
+\section{Included Cases}
+Several cases are included in the repository to serve as examples for users to create their own and for basic research. All case configuration namelist files for included cases can be found in \execout{gmtb-scm/scm/etc/case\_config} and represent the following observational field campaigns:
+\begin{itemize}
+\item Tropical Warm Pool -- International Cloud Experiment (TWP-ICE) maritime deep convection
+\item Atmospheric Radiation Measurement (ARM) Southern Great Plains (SGP) Summer 1997 continental deep convection
+\item Atlantic Stratocumulus Transition EXperiment (ASTEX) maritime stratocumulus-to-cumulus transition
+\item Barbados Oceanographic and Meteorological EXperiment (BOMEX) maritime shallow convection
+\item Large eddy simulation ARM Symbiotic Simulation and Observation (LASSO) for May 18, 2016 (with capability to run all LASSO dates - see \ref{sec:lasso}) continental shallow convection
+\end{itemize}
+For the ARM SGP case, several case configuration files representing different time periods of the observational dataset are included, denoted by a trailing letter. The LASSO case may be run with different forcing applied, so three case configuration files corresponding to these different forcing are included. In addition, two example cases are included for using UFS Atmosphere initial conditions:
+\begin{itemize}
+\item UFS initial conditions for 38.1 N, 98.5 W (central Kansas) for 00Z on Oct. 3, 2016 with Noah variables on the C96 FV3 grid (\execout{fv3\_model\_point\_noah.nc})
+\item UFS initial conditions for 38.1 N, 98.5 W (central Kansas) for 00Z on Oct. 3, 2016 with NoahMP variables on the C96 FV3 grid (\execout{fv3\_model\_point\_noah.nc})
+\end{itemize}
+See \ref{sec:UFS ICs} for information on how to generate these files for other locations and dates, given appropriate UFS Atmosphere initial conditions.
+
 \section{How to set up new cases}
 
-Setting up a new case involves preparing the two types of files listed above. For the case initialization and forcing data file, this typically involves writing a custom script or program to parse the data from its original format to the format that the SCM expects, listed above. An example of this type of script written in python is included in \execout{/gmtb-scm/scm/etc/scripts/twpice\_forcing\_file\_generator.py}. The script reads in the data as supplied from its source, converts any necessary variables, and writes a netCDF (version 4) file in the format described in subsection \ref{subsection: case input}. For reference, the following formulas are used:
+Setting up a new case involves preparing the two types of files listed above. For the case initialization and forcing data file, this typically involves writing a custom script or program to parse the data from its original format to the format that the SCM expects, listed above. An example of this type of script written in Python is included in \execout{/gmtb-scm/scm/etc/scripts/twpice\_forcing\_file\_generator.py}. The script reads in the data as supplied from its source, converts any necessary variables, and writes a netCDF (version 4) file in the format described in subsection \ref{subsection: case input}. For reference, the following formulas are used:
 \begin{equation}
 \theta_{il} = \theta - \frac{\theta}{T}\left(\frac{L_v}{c_p}q_l + \frac{L_s}{c_p}q_i\right)
 \end{equation}
@@ -161,11 +185,9 @@ Although it is expected that all variables are in the netCDF file, only those th
 	\end{itemize}
 \end{itemize}
 
-For the case configuration file, it is most efficient to copy an existing file in \execout{gmtb-scm/scm/etc/case\_config} and edit it to suit one's case. Recall from subsections \ref{subsection: case config} and \ref{subsection: physics config} that this file is used to configure both the SCM framework parameters (including how forcing is applied) and some physics suite parameters. Be sure to check that model timing parameters such as the time step and output frequency are appropriate for the physics suite being used. There is likely some stability criterion that governs the maximum time step based on the chosen parameterizations and number of vertical levels (grid spacing). The \execout{case\_name} parameter should match the name of the case input data file that was configured for the case (without the file extension). The \execout{runtime} parameter should be less than or equal to the length of the forcing data unless the desired behavior of the simulation is to proceed with the last specified forcing values after the length of the forcing data has been surpassed. The initial date and time should fall within the forcing period specified in the case input data file. If the case input data is specified to a lower altitude than the vertical domain, the remainder of the column will be filled in with values from a reference profile. There is a tropical profile and mid-latitude summer profile provided, although one may add more choices by adding a data file to \execout{gmtb-scm/scm/data/processed\_case\_input} and adding a parser section to the subroutine \execout{get\_reference\_profile} in \execout{gmtb-scm/scm/src/gmtb\_scm\_input.f90}. Surface fluxes can either be specified in the case input data file or calculated using a surface scheme using surface properties. If surface fluxes are specified from data, set \execout{sfc\_flux\_spec} to \exec{.true.} and specify \execout{sfc\_roughness\_length\_cm} for the surface over which the column resides. Otherwise, specify a \execout{sfc\_type}.
+For the case configuration file, it is most efficient to copy an existing file in \execout{gmtb-scm/scm/etc/case\_config} and edit it to suit one's case. Recall from subsection \ref{subsection: case config} that this file is used to configure the SCM framework parameters for a given case. Be sure to check that model timing parameters such as the time step and output frequency are appropriate for the physics suite being used. There is likely some stability criterion that governs the maximum time step based on the chosen parameterizations and number of vertical levels (grid spacing). The \execout{case\_name} parameter should match the name of the case input data file that was configured for the case (without the file extension). The \execout{runtime} parameter should be less than or equal to the length of the forcing data unless the desired behavior of the simulation is to proceed with the last specified forcing values after the length of the forcing data has been surpassed. The initial date and time should fall within the forcing period specified in the case input data file. If the case input data is specified to a lower altitude than the vertical domain, the remainder of the column will be filled in with values from a reference profile. There is a tropical profile and mid-latitude summer profile provided, although one may add more choices by adding a data file to \execout{gmtb-scm/scm/data/processed\_case\_input} and adding a parser section to the subroutine \execout{get\_reference\_profile} in \execout{gmtb-scm/scm/src/gmtb\_scm\_input.f90}. Surface fluxes can either be specified in the case input data file or calculated using a surface scheme using surface properties. If surface fluxes are specified from data, set \execout{sfc\_flux\_spec} to \exec{.true.} and specify \execout{sfc\_roughness\_length\_cm} for the surface over which the column resides. Otherwise, specify a \execout{sfc\_type}. In addition, one must specify a \execout{column\_area} for each column.
 
 To control the forcing method, one must choose how the momentum and scalar variable forcing are applied. The three methods of Randall and Cripe (1999, JGR) have been implemented: ``revealed forcing'' where total (horizontal $+$ vertical) advective tendencies are applied (type 1), ``horizontal advective forcing'' where horizontal advective tendencies are applied and vertical advective tendencies are calculated from a prescribed vertical velocity and the calculated (modeled) profiles (type 2), and ``relaxation forcing'' where nudging to observed profiles replaces horizontal advective forcing combined with vertical advective forcing from prescribed vertical velocity (type 3). If relaxation forcing is chosen, a \execout{relaxation\_time} that represents the timescale over which the profile would return to the nudging profiles must be specified.
-
-The \execout{physics\_config} namelist portion of the case configuration file provides a place to specify which physics are called. One needs to specify the path where the CCPP suite definition file is located in the \execout{physics\_suite\_dir} parameter. If one has specified that more than one (independent) columns be simulated, one also need to specify the name of the physics suite to be used for each column (corresponding to a suite definition file without the file extension) and a namelist that contains physics suite parameters for each column. The physics suite parameter namelist files are read as part of the suite initialization subroutine specified in the suite definition file. In addition, one must specify a \execout{column\_area} for each column. As of this release, multiple column functionality is limited to changes in the physics -- one can run multiple different physics suites using the same initial conditions and forcing, perform sensitivity test through multiple physics suite parameter namelists, and/or sensitivity tests with different representative column areas.
 
 \section{Using other LASSO cases}
 \label{sec:lasso}
@@ -179,4 +201,63 @@ In order to use other LASSO cases than the one provided, perform the following s
 ./lasso1_forcing_file_generator_gjf.py
 \end{lstlisting}
 \item Create a new case configuration file (or copy and modify an existing one) in \execout{gmtb-scm/scm/etc/case\_config}. Be sure that the \execout{case\_name} variable points to the newly created/processed case input file from above.
+\end{enumerate} 
+
+\section{Using UFS Initial Conditions}
+\label{sec:UFS ICs}
+
+A script exists in \execout{scm/etc/scripts/UFS\_IC\_generator.py} to read in UFS Atmosphere cold start initial conditions and generate a case input data file that the SCM can use. Since the Noah LSM is the operational LSM, it is assumed that initial variables for it exist in the UFS Atmosphere initial condition files. If NoahMP is to be used, its initial conditions are generated from the Noah initial conditions using the same algorithm used in the UFS Atmosphere. The usage is as follows:
+
+\begin{lstlisting}[language=bash]
+./UFS_IC_generator.py [-h] (-l LOCATION LOCATION | -ij INDEX INDEX) -d
+DATE -i IN_DIR -g GRID_DIR [-t {1,2,3,4,5,6}]
+[-a AREA] [-mp] -n CASE_NAME
+\end{lstlisting}
+
+Mandatory arguments:
+\begin{enumerate}
+\item \exec{-{}-location (-l)} OR \exec{-{}-index (-ij)}:  Either longitude and latitude in decimal degrees east and north of a location OR the UFS grid index with the tile number
+	\begin{itemize}
+		\item -l 261.51 38.2 (two floating point values separated by a space)
+		\item -ij 8 49 (two integer values separated by a space; this option must also use the \exec{-{}-tile (-t)} argument to specify the tile number)
+	\end{itemize}
+\item \exec{-{}-date (-d)} YYYYMMDDHHMM: date corresponding to the UFS initial conditions
+\item \exec{-{}-in\_dir (-i)}: path to the directory containing UFS initial conditions
+\item \exec{-{}-grid\_dir (-g)}: path to the directory containing the UFS supergrid files (AKA "fix" directory)
+\item \exec{-{}-case\_name (-n)}: what to call the output netCDF file
 \end{enumerate}
+
+Optional arguments:
+\begin{enumerate}
+\item \exec{-{}-tile (-t)}: if one already knows the correct tile for the given longitude and latitude OR one is specifying the UFS grid index (\exec{-{}-index} argument)
+\item \exec{-{}-noahmp (-mp)}: flag to generate cold-start initial conditions for NoahMP LSM from Noah LSM initial conditions
+\item \exec{-{}-area (-a)}: area of grid cell in $m^2$ (if known or different than the value calculated from the supergrid file)
+\end{enumerate}
+
+The following commands were used from within the \exec{scm/etc/scripts} directory to generate the example UFS Atmosphere initial condition case input files:
+\begin{lstlisting}[language=bash]
+./UFS_IC_generator.py -l 261.51 38.2 -d 201610030000 -i ../../data/raw_case_input/FV3_C96_example_ICs -g ../../data/raw_case_input/FV3_C96_example_ICs -n fv3_model_point_noah
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash]
+./UFS_IC_generator.py -l 261.51 38.2 -d 201610030000 -i ../../data/raw_case_input/FV3_C96_example_ICs -g ../../data/raw_case_input/FV3_C96_example_ICs -n fv3_model_point_noahmp -mp
+\end{lstlisting}
+
+Note that the \exec{-{}-in\_dir (-i)} and \exec{-{}-grid\_dir (-g)} arguments are the same in this case (since the supergrid files were copied to the same directory as the initial conditions files for point of example), but they will not in general be the same.
+
+In addition to the case input files generated by this script, one will need appropriate case configuration files. Make sure that the \exec{model\_ics} variable is set to \exec{.true.} and that the \exec{C\_RES}, \exec{year}, \exec{month}, \exec{day}, and \exec{hour} are all set to the appropriate values that match the UFS Atmosphere initial conditions used. See \execout{scm/etc/case\_config/fv3\_model\_point\_noah.nml} and \execout{scm/etc/case\_config/fv3\_model\_point\_noahmp.nml} for examples.
+
+Running the model is the same as for observational field campaign cases:
+\begin{lstlisting}[language=bash]
+./run_gmtb_scm.py -c fv3_model_point_noah -s SCM_GFS_v15 -n input_GFS_v15.nml
+\end{lstlisting}
+\begin{lstlisting}[language=bash]
+./run_gmtb_scm.py -c fv3_model_point_noahmp -s SCM_GFS_v15_noahmp -n input_GFS_v15_noahmp.nml
+\end{lstlisting}
+
+
+
+
+
+
+
