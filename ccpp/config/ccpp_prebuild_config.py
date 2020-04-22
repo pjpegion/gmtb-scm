@@ -142,6 +142,7 @@ SCHEME_FILES_DEPENDENCIES = [
     'ccpp/physics/physics/namelist_soilveg_ruc.F90',
     'ccpp/physics/physics/set_soilveg_ruc.F90',
     'ccpp/physics/physics/module_soil_pre.F90',
+    'ccpp/physics/stochastic_physics/scm_stochastic_physics.F90',
     # derived data type definitions
     'scm/src/GFS_typedefs.F90',
     'scm/src/gmtb_scm_kinds.f90',
